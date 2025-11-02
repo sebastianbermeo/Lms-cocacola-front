@@ -1,0 +1,125 @@
+'use client'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { User, Lock, ArrowRight, Shield } from 'lucide-react'
+
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    
+    // Redirección directa al dashboard
+    window.location.href = '/dashboard'
+  }
+
+  return (
+    <div className="min-h-screen flex bg-gradient-to-br from-white to-red-50">
+      {/* Lado Izquierdo - Contenido de Marca */}
+      <div className="w-1/2 flex flex-col justify-center p-16 bg-[#F40009] text-white relative overflow-hidden">
+        <div className="z-10 relative">
+          <img
+            src="/coca-cola-logo-white.png"
+            alt="Coca-Cola Logo"
+            className="mb-8 w-48"
+          />
+          <h1 className="text-5xl font-bold mb-6 leading-tight">
+            Plataforma de <br />Formación Coca-Cola
+          </h1>
+          <p className="text-xl text-white/80 max-w-md">
+            Desarrolla tus habilidades profesionales con el respaldo de una marca global
+          </p>
+        </div>
+
+        {/* Elementos decorativos */}
+        <div className="absolute top-0 right-0 opacity-20">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="400"
+            height="400"
+            viewBox="0 0 200 200"
+            fill="white"
+          >
+            <circle cx="100" cy="100" r="80" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Lado Derecho - Formulario */}
+      <div className="w-1/2 flex items-center justify-center p-16">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold text-[#F40009] mb-4">
+              Iniciar Sesión
+            </h2>
+            <p className="text-gray-600">
+              Accede a tu plataforma de formación Coca-Cola
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#F40009] transition-colors" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Correo electrónico"
+                className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none 
+                  transition-all duration-300 bg-transparent focus:ring-0 focus:outline-none"
+                required
+              />
+            </div>
+
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#F40009] transition-colors" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Contraseña"
+                className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none 
+                  transition-all duration-300 bg-transparent focus:ring-0 focus:outline-none"
+                required
+              />
+            </div>
+
+            <div className="flex justify-between items-center">
+              <label className="flex items-center">
+                <input 
+                  type="checkbox" 
+                  className="mr-2 text-[#F40009] focus:ring-[#F40009]"
+                />
+                <span className="text-gray-600">Recordarme</span>
+              </label>
+              <a href="#" className="text-[#F40009] hover:underline">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full bg-[#F40009] text-white py-4 rounded-full hover:bg-red-700 transition-colors flex items-center justify-center space-x-2 group"
+            >
+              <span>Iniciar Sesión</span>
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+          </form>
+
+          <div className="mt-6 text-center flex items-center justify-center text-gray-600">
+            <Shield className="mr-2 text-[#F40009]" size={20} />
+            <p>Acceso seguro y protegido</p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  )
+}
