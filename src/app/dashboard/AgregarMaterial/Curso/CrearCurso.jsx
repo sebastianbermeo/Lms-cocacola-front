@@ -1,0 +1,137 @@
+'use client'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Plus, Save, RotateCcw } from 'lucide-react'
+import TablaCursos from './TablaCursos'
+
+export default function CrearCurso({ cursos = [], setCursos = () => {} }) {
+  const [form, setForm] = useState({
+    titulo: '',
+    descripcion: '',
+    imagen: '',
+  })
+  const [editando, setEditando] = useState(false)
+
+  const guardarCurso = () => {
+    if (!form.titulo.trim() || !form.descripcion.trim() || !form.imagen.trim()) {
+      alert('Por favor, completa todos los campos obligatorios.')
+      return
+    }
+
+    if (editando) {
+      setCursos((prev) => prev.map((c) => (c.id === form.id ? { ...form } : c)))
+      setEditando(false)
+    } else {
+      setCursos([...cursos, { id: Date.now(), ...form }])
+    }
+
+    setForm({ titulo: '', descripcion: '', imagen: '' })
+  }
+
+  const editarCurso = (curso) => {
+    setForm(curso)
+    setEditando(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const eliminarCurso = (id) => {
+    if (confirm('¿Seguro que deseas eliminar este curso?')) {
+      setCursos(cursos.filter((c) => c.id !== id))
+    }
+  }
+
+  const cancelarEdicion = () => {
+    setEditando(false)
+    setForm({ titulo: '', descripcion: '', imagen: '' })
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <h2 className="text-xl font-semibold text-gray-800 mb-6">
+        {editando ? 'Editar curso' : 'Crear nuevo curso'}
+      </h2>
+
+      {/* Formulario */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
+        <h3 className="text-lg font-semibold text-[#F40009] mb-4">🎓 Datos del curso</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Título <span className="text-[#F40009]">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.titulo}
+              onChange={(e) => setForm({ ...form, titulo: e.target.value })}
+              placeholder="Ejemplo: Liderazgo empresarial"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descripción <span className="text-[#F40009]">*</span>
+            </label>
+            <textarea
+              value={form.descripcion}
+              onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+              rows={3}
+              placeholder="Descripción general del curso..."
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Imagen de portada <span className="text-[#F40009]">*</span>
+            </label>
+            <input
+              type="text"
+              value={form.imagen}
+              onChange={(e) => setForm({ ...form, imagen: e.target.value })}
+              placeholder="https://..."
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none"
+            />
+            {form.imagen && (
+              <img src={form.imagen} alt="Preview" className="mt-2 rounded-lg w-full h-32 object-cover border" />
+            )}
+          </div>
+        </div>
+
+        {/* Botones */}
+        <div className="flex justify-end space-x-3 mt-6">
+          {editando && (
+            <button
+              onClick={cancelarEdicion}
+              className="flex items-center border border-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-100 transition-all"
+            >
+              <RotateCcw size={18} className="mr-2" /> Cancelar
+            </button>
+          )}
+          <button
+            onClick={guardarCurso}
+            className="flex items-center bg-[#F40009] text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all"
+          >
+            {editando ? (
+              <>
+                <Save size={18} className="mr-2" /> Guardar cambios
+              </>
+            ) : (
+              <>
+                <Plus size={18} className="mr-2" /> Agregar curso
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Tabla */}
+      <TablaCursos
+        cursos={cursos}
+        onEdit={(row) => editarCurso(row)}
+        onDelete={(row) => eliminarCurso(row.id)}
+      />
+    </motion.div>
+  )
+}

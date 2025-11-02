@@ -3,20 +3,25 @@ import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import Footer from '@/components/dashboard/Footer'
 import Inicio from './Inicio/Inicio'
-import Cursos from './cursos/Cursos'
+import Cursos from './Cursos/Cursos'
 import Modulos from './Modulos/Modulos'
 import Lecciones from './Lecciones/Lecciones'
+import ContenidoLeccion from './Lecciones/ContenidoLeccion'
+import Certificados from './Certificados/Certificados'
+import Usuarios from './Usuarios/Usuarios'
+import AgregarMaterial from './AgregarMaterial/AgregarMaterial'
 
 export default function DashboardLayout() {
-  // 👇 aquí iniciamos directamente en cursos
-  const [activeView, setActiveView] = useState('cursos')
+  const [activeView, setActiveView] = useState('inicio')
   const [selectedCurso, setSelectedCurso] = useState(null)
   const [selectedModulo, setSelectedModulo] = useState(null)
+  const [selectedLeccion, setSelectedLeccion] = useState(null)
 
   const renderView = () => {
     switch (activeView) {
       case 'inicio':
         return <Inicio onNavigate={setActiveView} />
+
       case 'cursos':
         return (
           <Cursos
@@ -26,6 +31,7 @@ export default function DashboardLayout() {
             }}
           />
         )
+
       case 'modulos':
         return (
           <Modulos
@@ -37,15 +43,38 @@ export default function DashboardLayout() {
             onBack={() => setActiveView('cursos')}
           />
         )
+
       case 'lecciones':
         return (
           <Lecciones
             modulo={selectedModulo}
+            onLeccionSelect={(leccion) => {
+              setSelectedLeccion(leccion)
+              setActiveView('contenido')
+            }}
             onBack={() => setActiveView('modulos')}
           />
         )
+
+      case 'contenido':
+        return (
+          <ContenidoLeccion
+            leccion={selectedLeccion}
+            onBack={() => setActiveView('lecciones')}
+          />
+        )
+
+      case 'certificados':
+        return <Certificados />
+
+      case 'usuarios':
+        return <Usuarios />
+
+      case 'agregar':
+        return <AgregarMaterial />
+
       default:
-        return <Cursos />
+        return <Inicio onNavigate={setActiveView} />
     }
   }
 

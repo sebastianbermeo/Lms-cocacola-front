@@ -28,7 +28,7 @@ export default function Inicio({ onNavigate }) {
         className="relative z-10 text-center max-w-3xl mx-auto"
       >
         <Image
-          src="/coca-cola-logo-red.png"
+          src="/Img/gif.gif"
           alt="Coca-Cola Logo"
           width={200}
           height={70}

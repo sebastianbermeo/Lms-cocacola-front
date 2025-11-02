@@ -1,28 +1,35 @@
 'use client'
 import { useState } from 'react'
-import Image from 'next/image'
-import { Bell, ChevronDown, LogOut } from 'lucide-react'
+import { ChevronDown, LogOut } from 'lucide-react'
 
 export default function Header({ activeView, onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // 🔹 Usuario simulado (más adelante se reemplaza por datos reales)
+  const usuarioActivo = {
+    nombre: 'Juan Pérez',
+    rol: 'Admin',
+    foto: '', // ← si no tiene imagen, no se mostrará nada
+  }
 
   const menuItems = [
     { label: 'Inicio', value: 'inicio' },
     { label: 'Cursos', value: 'cursos' },
     { label: 'Certificados', value: 'certificados' },
-    { label: 'Configuración', value: 'configuracion' }
+    { label: 'Usuarios', value: 'usuarios' },
+    { label: 'Agregar Material', value: 'agregar' },
   ]
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="flex items-center justify-between px-8 py-4">
         {/* Logo */}
-        <Image
-          src="/coca-cola-logo-red.png"
+        <img
+          src="/Img/Coca-Cola_logo.png"
           alt="Coca-Cola Logo"
           width={130}
           height={40}
-          priority
+          className="object-contain"
         />
 
         {/* Menú principal */}
@@ -42,38 +49,40 @@ export default function Header({ activeView, onNavigate }) {
           ))}
         </nav>
 
-        {/* Notificaciones y Usuario */}
+        {/* Usuario */}
         <div className="flex items-center space-x-6 relative">
-          <button className="relative">
-            <Bell className="text-gray-600 hover:text-[#F40009] transition-colors" size={22} />
-            <span className="absolute -top-2 -right-2 bg-[#F40009] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              3
-            </span>
-          </button>
-
-          {/* Usuario */}
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="flex items-center space-x-2 hover:bg-red-50 px-3 py-2 rounded-full transition-all"
             >
-              <Image
-                src="/avatar.jpg"
-                alt="Usuario"
-                width={40}
-                height={40}
-                className="rounded-full border border-gray-200"
-              />
+              {/* Solo muestra imagen si existe */}
+              {usuarioActivo.foto && (
+                <img
+                  src={usuarioActivo.foto}
+                  alt="Usuario"
+                  width={40}
+                  height={40}
+                  className="rounded-full border border-gray-200 object-cover"
+                />
+              )}
+
               <div className="text-left hidden sm:block">
-                <p className="font-semibold text-gray-800 text-sm">Juan Pérez</p>
-                <p className="text-xs text-gray-500">Empleado</p>
+                <p className="font-semibold text-gray-800 text-sm">
+                  {usuarioActivo.nombre}
+                </p>
+                <p className="text-xs text-gray-500">{usuarioActivo.rol}</p>
               </div>
+
               <ChevronDown
-                className={`text-gray-500 transition-transform ${menuOpen ? 'rotate-180' : ''}`}
+                className={`text-gray-500 transition-transform ${
+                  menuOpen ? 'rotate-180' : ''
+                }`}
                 size={18}
               />
             </button>
 
+            {/* Menú desplegable */}
             {menuOpen && (
               <div className="absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
                 <button

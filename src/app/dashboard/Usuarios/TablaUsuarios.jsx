@@ -1,0 +1,150 @@
+'use client'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Pencil, XCircle, CheckCircle } from 'lucide-react'
+
+export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
+  const roles = { 1: 'Admin', 2: 'User' }
+  const [confirmModal, setConfirmModal] = useState({ open: false, usuario: null })
+
+  const handleConfirm = (usuario) => {
+    setConfirmModal({ open: true, usuario })
+  }
+
+  const handleConfirmarCambio = () => {
+    if (confirmModal.usuario) {
+      onToggleActivo(confirmModal.usuario.id)
+    }
+    setConfirmModal({ open: false, usuario: null })
+  }
+
+  return (
+    <>
+      <div className="overflow-x-auto shadow border border-gray-200 rounded-xl">
+        <table className="w-full text-sm text-gray-700">
+          <thead className="bg-[#F40009] text-white text-left">
+            <tr>
+              <th className="py-3 px-4">Nombre</th>
+              <th className="py-3 px-4">Correo electrónico</th>
+              <th className="py-3 px-4">Rol</th>
+              <th className="py-3 px-4 text-center">Estado</th>
+              <th className="py-3 px-4 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {usuarios.length > 0 ? (
+              usuarios.map((u, i) => (
+                <motion.tr
+                  key={u.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+                  <td className="py-3 px-4 font-medium">{u.displayName}</td>
+                  <td className="py-3 px-4">{u.email}</td>
+                  <td className="py-3 px-4">{roles[u.rolId]}</td>
+                  <td className="py-3 px-4 text-center">
+                    <div
+                      onClick={() => handleConfirm(u)}
+                      className={`inline-block cursor-pointer px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                        u.activo
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          : 'bg-red-100 text-red-700 hover:bg-red-200'
+                      }`}
+                    >
+                      {u.activo ? 'Activo' : 'Inactivo'}
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-center space-x-2">
+                    <button
+                      onClick={() => onEditar(u)}
+                      className="text-[#F40009] hover:text-red-700 transition"
+                      title="Editar usuario"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                  </td>
+                </motion.tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center text-gray-500 py-6 italic">
+                  No hay usuarios registrados
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modal de confirmación */}
+      <AnimatePresence>
+        {confirmModal.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center relative"
+            >
+              {/* Icono */}
+              <div className="flex justify-center mb-4">
+                {confirmModal.usuario?.activo ? (
+                  <XCircle className="text-red-500" size={48} />
+                ) : (
+                  <CheckCircle className="text-green-500" size={48} />
+                )}
+              </div>
+
+              <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                {confirmModal.usuario?.activo
+                  ? 'Desactivar usuario'
+                  : 'Activar usuario'}
+              </h2>
+
+              <p className="text-gray-600 mb-6">
+                ¿Estás seguro de que deseas{' '}
+                {confirmModal.usuario?.activo ? (
+                  <span className="text-red-600 font-medium">desactivar</span>
+                ) : (
+                  <span className="text-green-600 font-medium">activar</span>
+                )}{' '}
+                la cuenta de{' '}
+                <span className="font-semibold">
+                  {confirmModal.usuario?.displayName}
+                </span>
+                ?
+              </p>
+
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={() => setConfirmModal({ open: false, usuario: null })}
+                  className="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmarCambio}
+                  className={`px-6 py-2 rounded-lg text-white ${
+                    confirmModal.usuario?.activo
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  Confirmar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}

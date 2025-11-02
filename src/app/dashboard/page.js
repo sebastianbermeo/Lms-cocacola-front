@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import Footer from '@/components/dashboard/Footer'
 import Inicio from './Inicio/Inicio'
-import Cursos from './cursos/Cursos'
+import Cursos from './Cursos/Cursos'
 import Modulos from './Modulos/Modulos'
 import Lecciones from './Lecciones/Lecciones'
 
