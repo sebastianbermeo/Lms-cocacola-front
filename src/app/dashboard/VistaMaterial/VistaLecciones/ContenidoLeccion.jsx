@@ -59,7 +59,8 @@ export default function ContenidoLeccion({ leccion, onBack }) {
     )
 
   return (
-    <div className="min-h-screen bg-white p-10">
+    <div className="min-h-screen bg-white p-10 space-y-10">
+      {/* Botón volver */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -70,20 +71,22 @@ export default function ContenidoLeccion({ leccion, onBack }) {
         Volver a Lecciones
       </motion.button>
 
+      {/* Encabezado */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="bg-[#F40009] text-white rounded-2xl p-8 mb-10 shadow-md"
+        className="bg-[#F40009] text-white rounded-2xl p-8 shadow-md"
       >
         <h1 className="text-3xl font-bold mb-2">{leccion.titulo}</h1>
         <p className="text-white/80 text-lg">{leccion.descripcion}</p>
         <p className="mt-2 font-semibold">💎 Puntos: {leccion.puntos}</p>
       </motion.div>
 
-      {/* Si no está en modo quiz */}
+      {/* Contenido principal */}
       {!mostrarQuiz && (
-        <>
+        <div className="space-y-10">
+          {/* Video */}
           {leccion.videoUrl && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -101,6 +104,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
             </motion.div>
           )}
 
+          {/* Archivos */}
           {Array.isArray(leccion.archivos) && leccion.archivos.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -128,6 +132,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
             </motion.div>
           )}
 
+          {/* Texto */}
           {leccion.contenidoTexto && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -135,15 +140,16 @@ export default function ContenidoLeccion({ leccion, onBack }) {
               transition={{ duration: 0.8 }}
               className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
             >
-              <h4 className="text-lg font-semibold text-[#F40009] mb-2">Contenido de la lección</h4>
+              <h4 className="text-lg font-semibold text-[#F40009] mb-4">Contenido de la lección</h4>
               <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
                 {leccion.contenidoTexto}
               </p>
             </motion.div>
           )}
 
+          {/* Botón de evaluación */}
           {quiz && (
-            <div className="flex justify-center pt-8">
+            <div className="flex justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -160,77 +166,80 @@ export default function ContenidoLeccion({ leccion, onBack }) {
               Esta lección no tiene evaluación asociada.
             </div>
           )}
-        </>
+        </div>
       )}
 
-      {/* Si está dentro del quiz */}
+      {/* Quiz */}
       {mostrarQuiz && quiz && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-lg space-y-8">
-            <h2 className="text-2xl font-bold text-[#F40009] mb-4 text-center">
-              🧠 Evaluación de {leccion.titulo}
-            </h2>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white border border-gray-200 rounded-xl p-8 shadow-lg space-y-8"
+        >
+          <h2 className="text-2xl font-bold text-[#F40009] mb-6 text-center">
+            🧠 Evaluación de {leccion.titulo}
+          </h2>
 
-            {quiz.preguntas.map((p, i) => (
-              <div key={p.id} className="border-b border-gray-200 pb-6 mb-6">
-                <h3 className="font-semibold text-gray-800 mb-3">
-                  {i + 1}. {p.texto}
-                </h3>
-                <ul className="space-y-2">
-                  {p.opciones.map((o, j) => (
-                    <li key={j}>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name={`pregunta-${p.id}`}
-                          checked={respuestas[p.id] === j}
-                          onChange={() => handleResponder(p.id, j)}
-                          className="text-[#F40009]"
-                        />
-                        <span className="text-gray-700">
-                          {typeof o === 'string' ? o : o.texto}
-                        </span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          {quiz.preguntas.map((p, i) => (
+            <div key={p.id} className="border-b border-gray-200 pb-6 mb-6">
+              <h3 className="font-semibold text-gray-800 mb-3">
+                {i + 1}. {p.texto}
+              </h3>
+              <ul className="space-y-2">
+                {p.opciones.map((o, j) => (
+                  <li key={j}>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`pregunta-${p.id}`}
+                        checked={respuestas[p.id] === j}
+                        onChange={() => handleResponder(p.id, j)}
+                        className="text-[#F40009]"
+                      />
+                      <span className="text-gray-700">
+                        {typeof o === 'string' ? o : o.texto}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
-            {!resultado ? (
-              <div className="flex justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleEnviarQuiz}
-                  className="bg-[#F40009] text-white px-8 py-3 rounded-full font-semibold hover:bg-red-700 transition-all"
-                >
-                  Enviar respuestas
-                </motion.button>
-              </div>
-            ) : (
-              <div className="text-center space-y-4">
-                {resultado.aprobado ? (
-                  <div className="text-green-600 font-semibold text-lg flex justify-center items-center gap-2">
-                    <CheckCircle size={22} /> ¡Aprobado! ({resultado.correctas}/{resultado.total})
-                  </div>
-                ) : (
-                  <div className="text-[#F40009] font-semibold text-lg flex justify-center items-center gap-2">
-                    <AlertCircle size={22} /> No aprobado ({resultado.correctas}/{resultado.total})
-                  </div>
-                )}
+          {!resultado ? (
+            <div className="flex justify-center pt-6">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleEnviarQuiz}
+                className="bg-[#F40009] text-white px-8 py-3 rounded-full font-semibold hover:bg-red-700 transition-all"
+              >
+                Enviar respuestas
+              </motion.button>
+            </div>
+          ) : (
+            <div className="text-center space-y-4">
+              {resultado.aprobado ? (
+                <div className="text-green-600 font-semibold text-lg flex justify-center items-center gap-2">
+                  <CheckCircle size={22} /> ¡Aprobado! ({resultado.correctas}/{resultado.total})
+                </div>
+              ) : (
+                <div className="text-[#F40009] font-semibold text-lg flex justify-center items-center gap-2">
+                  <AlertCircle size={22} /> No aprobado ({resultado.correctas}/{resultado.total})
+                </div>
+              )}
 
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setMostrarQuiz(false)}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition-all"
-                >
-                  Volver al contenido
-                </motion.button>
-              </div>
-            )}
-          </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setMostrarQuiz(false)}
+                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-medium hover:bg-gray-300 transition-all"
+              >
+                Volver al contenido
+              </motion.button>
+            </div>
+          )}
         </motion.div>
       )}
     </div>
