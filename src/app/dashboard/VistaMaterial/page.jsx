@@ -3,7 +3,7 @@ import { useState } from 'react'
 import VistaCursos from './VistaCursos/VistaCursos'
 import VistaModulos from './VistaModulos/VistaModulos'
 import VistaLecciones from './VistaLecciones/VistaLecciones'
-import ContenidoLeccion from '@/app/dashboard/vistaMaterial/ContenidoLeccion/ContenidoLeccion'
+import ContenidoLeccion from '@/app/dashboard/VistaMaterial/ContenidoLeccion/ContenidoLeccion'
 
 export default function VistaMaterial() {
   const [curso, setCurso] = useState(null)
