@@ -5,107 +5,67 @@ import { BookOpen, Layers3, FileText } from 'lucide-react'
 import CrearCurso from './Curso/CrearCurso'
 import CrearModulo from './Modulo/CrearModulo'
 import CrearLeccion from './Leccion/CrearLeccion'
+import TablaCursos from './Curso/TablaCursos'
+import TablaModulos from './Modulo/TablaModulos'
+import TablaLecciones from './Leccion/TablaLecciones'
+import CrearQuiz from './Quiz/CrearQuiz'
+import TablaQuiz from './Quiz/TablaQuiz'
+import { useCurso } from '@/app/hooks/AgregarMaterial/Curso/useCurso'
+import { useModulo } from '@/app/hooks/AgregarMaterial/Modulo/useModulo'
+import { useLeccion } from '@/app/hooks/AgregarMaterial/Leccion/useLeccion'
+import { useQuiz } from '@/app/hooks/AgregarMaterial/Quiz/useQuiz'
 
 export default function AgregarMaterial() {
   const [activeTab, setActiveTab] = useState('curso')
+  const { cursos, crearCurso, editarCurso, eliminarCurso } = useCurso()
+  const { modulos, crearModulo, editarModulo, eliminarModulo } = useModulo()
+  const { lecciones, crearLeccion, editarLeccion, eliminarLeccion, obtenerLecciones } = useLeccion()
+  const { quizzes, crearQuiz, editarQuiz, eliminarQuiz, obtenerQuizzes } = useQuiz()
+  const [cursoEditando, setCursoEditando] = useState(null)
+  const [moduloEditando, setModuloEditando] = useState(null)
+  const [leccionEditando, setLeccionEditando] = useState(null)
+  const [quizEditando, setQuizEditando] = useState(null)
 
-  // ================= DATOS QUEMADOS (simulación de BD) =================
-  const [cursos, setCursos] = useState([
-    {
-      id: 1,
-      titulo: 'Matemáticas Básicas',
-      descripcion: 'Aprende las operaciones fundamentales y cómo aplicarlas en la vida real.',
-      imagen: 'https://img.freepik.com/free-vector/math-education-background_23-2148148871.jpg',
-    },
-    {
-      id: 2,
-      titulo: 'Comunicación Efectiva',
-      descripcion: 'Desarrolla habilidades de comunicación para mejorar tus relaciones laborales.',
-      imagen: 'https://img.freepik.com/free-vector/flat-communication-concept_23-2148155255.jpg',
-    },
-    {
-      id: 3,
-      titulo: 'Liderazgo Empresarial',
-      descripcion: 'Conoce las mejores prácticas para dirigir equipos y liderar con éxito.',
-      imagen: 'https://img.freepik.com/free-vector/leadership-concept-illustration_114360-1825.jpg',
-    },
-  ])
+  const handleGuardarCurso = async (form) => {
+    if (form.id) {
+      await editarCurso(form.id, form)
+      setCursoEditando(null)
+    } else {
+      await crearCurso(form)
+    }
+  }
 
-  const [modulos, setModulos] = useState([
-    {
-      id: 1,
-      titulo: 'Multiplicación y División',
-      descripcion: 'Domina las operaciones básicas y aplica la lógica numérica.',
-      imagen: 'https://img.freepik.com/free-vector/numbers-math-education_23-2148174912.jpg',
-      curso: 'Matemáticas Básicas',
-    },
-    {
-      id: 2,
-      titulo: 'Escucha Activa',
-      descripcion: 'Aprende a escuchar con empatía y mejorar la comunicación interpersonal.',
-      imagen: 'https://img.freepik.com/free-vector/business-team-communication-illustration_23-2148754002.jpg',
-      curso: 'Comunicación Efectiva',
-    },
-    {
-      id: 3,
-      titulo: 'Trabajo en Equipo',
-      descripcion: 'Descubre cómo colaborar de forma efectiva con tus compañeros.',
-      imagen: 'https://img.freepik.com/free-vector/teamwork-concept-illustration_114360-1971.jpg',
-      curso: 'Liderazgo Empresarial',
-    },
-  ])
+  const handleGuardarModulo = async (form) => {
+    if (form.id) {
+      await editarModulo(form.id, form)
+      setModuloEditando(null)
+    } else {
+      await crearModulo(form)
+    }
+  }
 
-  const [lecciones, setLecciones] = useState([
-    {
-      id: 1,
-      titulo: 'Lección 1: Introducción a la multiplicación',
-      descripcion: 'Conoce los fundamentos de la multiplicación y su importancia.',
-      imagen: 'https://img.freepik.com/free-vector/math-education-background_23-2148148871.jpg',
-      modulo: 'Multiplicación y División',
-      videoUrl: 'https://www.youtube.com/embed/tgbNymZ7vqY',
-      archivos: [],
-      contenidoTexto:
-        'La multiplicación es una de las operaciones básicas más importantes. En esta lección aprenderás su lógica y cómo aplicarla.',
-    },
-    {
-      id: 2,
-      titulo: 'Lección 2: Divisiones simples',
-      descripcion: 'Aprende cómo dividir de manera sencilla y práctica.',
-      imagen: 'https://img.freepik.com/free-vector/math-education-background_23-2148148871.jpg',
-      modulo: 'Multiplicación y División',
-      videoUrl: '',
-      archivos: [],
-      contenidoTexto:
-        'La división permite repartir cantidades en partes iguales. Comprenderás su relación con la multiplicación.',
-    },
-    {
-      id: 3,
-      titulo: 'Lección 1: Cómo escuchar mejor',
-      descripcion: 'Mejora tus habilidades de escucha activa en el entorno laboral.',
-      imagen: 'https://img.freepik.com/free-vector/flat-communication-concept_23-2148155255.jpg',
-      modulo: 'Escucha Activa',
-      videoUrl: 'https://www.youtube.com/embed/xvFZjo5PgG0',
-      archivos: [],
-      contenidoTexto:
-        'Escuchar activamente es comprender de verdad al interlocutor. Esta lección te enseñará a hacerlo paso a paso.',
-    },
-    {
-      id: 4,
-      titulo: 'Lección 1: Cómo liderar un grupo',
-      descripcion: 'Descubre los principios básicos del liderazgo moderno.',
-      imagen: 'https://img.freepik.com/free-vector/leadership-concept-illustration_114360-1825.jpg',
-      modulo: 'Trabajo en Equipo',
-      videoUrl: '',
-      archivos: [],
-      contenidoTexto:
-        'Liderar implica guiar con empatía y dirección clara. Aprenderás a fomentar la colaboración y la confianza.',
-    },
-  ])
+  const handleGuardarLeccion = async (form) => {
+    if (form.id) {
+      await editarLeccion(form.id, form)
+    } else {
+      await crearLeccion(form)
+    }
+    await obtenerLecciones()
+    setLeccionEditando(null)
+  }
 
-  // ==================== RENDER ====================
+  const handleGuardarQuiz = async (form) => {
+    if (form.id) {
+      await editarQuiz(form.id, form)
+      setQuizEditando(null)
+    } else {
+      await crearQuiz(form)
+    }
+    await obtenerQuizzes()
+  }
+
   return (
     <div className="min-h-screen bg-white p-10">
-      {/* Encabezado */}
       <motion.h1
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -115,12 +75,12 @@ export default function AgregarMaterial() {
         Gestión de Materiales
       </motion.h1>
 
-      {/* Navegación de pestañas */}
       <div className="flex space-x-4 border-b border-gray-200 mb-8">
         {[
           { key: 'curso', icon: <BookOpen size={18} />, label: 'Cursos' },
           { key: 'modulo', icon: <Layers3 size={18} />, label: 'Módulos' },
           { key: 'leccion', icon: <FileText size={18} />, label: 'Lecciones' },
+          { key: 'quiz', icon: <FileText size={18} />, label: 'Evaluaciones' },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -137,22 +97,72 @@ export default function AgregarMaterial() {
         ))}
       </div>
 
-      {/* Contenido dinámico */}
       <div className="transition-all">
         {activeTab === 'curso' && (
-          <CrearCurso cursos={cursos} setCursos={setCursos} />
+          <>
+            <CrearCurso
+              cursos={cursos}
+              onGuardar={handleGuardarCurso}
+              cursoEditando={cursoEditando}
+              onCancelarEdicion={() => setCursoEditando(null)}
+            />
+            <TablaCursos
+              cursos={cursos}
+              onEdit={(row) => setCursoEditando(row)}
+              onDelete={(id) => eliminarCurso(id)}
+            />
+          </>
         )}
 
         {activeTab === 'modulo' && (
-          <CrearModulo modulos={modulos} setModulos={setModulos} cursos={cursos} />
+          <>
+            <CrearModulo
+              cursos={cursos}
+              onGuardar={handleGuardarModulo}
+              moduloEditando={moduloEditando}
+              onCancelarEdicion={() => setModuloEditando(null)}
+            />
+            <TablaModulos
+              modulos={modulos}
+              onEdit={(row) => setModuloEditando(row)}
+              onDelete={(id) => eliminarModulo(id)}
+            />
+          </>
         )}
 
         {activeTab === 'leccion' && (
-          <CrearLeccion
-            lecciones={lecciones}
-            setLecciones={setLecciones}
-            modulos={modulos}
-          />
+          <>
+            <CrearLeccion
+              modulos={modulos}
+              onGuardar={handleGuardarLeccion}
+              leccionEditando={leccionEditando}
+              onCancelarEdicion={() => setLeccionEditando(null)}
+            />
+            <TablaLecciones
+              lecciones={lecciones}
+              onEdit={(row) => setLeccionEditando(row)}
+              onDelete={async (id) => {
+                await eliminarLeccion(id)
+                await obtenerLecciones()
+              }}
+            />
+          </>
+        )}
+
+        {activeTab === 'quiz' && (
+          <>
+            <CrearQuiz
+              lecciones={lecciones}
+              onGuardar={handleGuardarQuiz}
+              quizEditando={quizEditando}
+              onCancelarEdicion={() => setQuizEditando(null)}
+            />
+            <TablaQuiz
+              quizzes={quizzes}
+              onEdit={(row) => setQuizEditando(row)}
+              onDelete={(id) => eliminarQuiz(id)}
+            />
+          </>
         )}
       </div>
     </div>

@@ -3,11 +3,11 @@ import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import Footer from '@/components/dashboard/Footer'
 import Inicio from './Inicio/Inicio'
-import Cursos from './Cursos/Cursos'
-import Modulos from './Modulos/Modulos'
-import Lecciones from './Lecciones/Lecciones'
-import ContenidoLeccion from './Lecciones/ContenidoLeccion'
-import Certificados from './Certificados/Certificados'
+import Cursos from './VistaMaterial/VistaCursos/VistaCursos'
+import Modulos from './VistaMaterial/VistaModulos/VistaModulos'
+import Lecciones from './VistaMaterial/VistaLecciones/VistaLecciones'
+import ContenidoLeccion from './VistaMaterial/VistaLecciones/ContenidoLeccion'
+import Premios from './Premios/Premios'  // ✅ corregido
 import Usuarios from './Usuarios/Usuarios'
 import AgregarMaterial from './AgregarMaterial/AgregarMaterial'
 
@@ -64,8 +64,8 @@ export default function DashboardLayout() {
           />
         )
 
-      case 'certificados':
-        return <Certificados />
+      case 'premios':
+        return <Premios />
 
       case 'usuarios':
         return <Usuarios />

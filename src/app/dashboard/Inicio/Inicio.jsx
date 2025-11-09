@@ -1,12 +1,23 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { BookOpen, Award, FileText, ArrowRight } from 'lucide-react'
+import { BookOpen, FileText, ArrowRight, Gift } from 'lucide-react'
 
 export default function Inicio({ onNavigate }) {
+  const [usuario, setUsuario] = useState(null)
+
+  // 🔹 Cargar el usuario desde localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUsuario(JSON.parse(userData))
+    }
+  }, [])
+
   return (
     <div className="relative min-h-screen bg-white overflow-hidden p-10 flex flex-col items-center justify-center">
-      {/* Burbujas decorativas animadas */}
+      {/* 🔴 Burbujas decorativas */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.3, scale: [1, 1.1, 1] }}
@@ -20,7 +31,7 @@ export default function Inicio({ onNavigate }) {
         className="absolute bottom-20 right-20 w-80 h-80 bg-[#F40009]/20 rounded-full blur-3xl"
       />
 
-      {/* Contenido principal */}
+      {/* 🔴 Contenido principal */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -41,7 +52,11 @@ export default function Inicio({ onNavigate }) {
           transition={{ delay: 0.3, duration: 0.7 }}
           className="text-5xl md:text-6xl font-extrabold text-[#F40009] mb-4"
         >
-          ¡Bienvenido, <span className="text-gray-800">Juan Pérez</span>!
+          ¡Bienvenido,{' '}
+          <span className="text-gray-800">
+            {usuario?.name || 'Usuario'}
+          </span>
+          !
         </motion.h1>
 
         <motion.p
@@ -50,11 +65,10 @@ export default function Inicio({ onNavigate }) {
           transition={{ delay: 0.6, duration: 0.8 }}
           className="text-gray-600 text-lg md:text-xl leading-relaxed mb-10"
         >
-          Tu espacio de aprendizaje Coca-Cola —  
-          impulsa tus habilidades, explora nuevos conocimientos y alcanza tus metas.
+          Tu espacio de aprendizaje Coca-Cola — impulsa tus habilidades, explora nuevos conocimientos y alcanza tus metas.
         </motion.p>
 
-        {/* Botón principal */}
+        {/* 🔴 Botón principal */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -66,13 +80,14 @@ export default function Inicio({ onNavigate }) {
         </motion.button>
       </motion.div>
 
-      {/* Cards de resumen */}
+      {/* 🔴 Cards de resumen */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.8 }}
         className="grid md:grid-cols-3 gap-8 mt-14 w-full max-w-5xl relative z-10"
       >
+        {/* Cursos activos */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
@@ -87,6 +102,7 @@ export default function Inicio({ onNavigate }) {
           </p>
         </motion.div>
 
+        {/* Progreso */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
@@ -101,22 +117,23 @@ export default function Inicio({ onNavigate }) {
           </p>
         </motion.div>
 
+        {/* Premios */}
         <motion.div
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
           className="bg-white border border-gray-200 shadow-lg rounded-2xl p-6 flex flex-col items-center text-center hover:border-[#F40009] hover:shadow-xl transition-all"
         >
           <div className="bg-[#F40009]/10 p-4 rounded-full mb-4">
-            <Award className="text-[#F40009]" size={36} />
+            <Gift className="text-[#F40009]" size={36} />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Certificaciones</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Premios</h3>
           <p className="text-gray-600 text-sm">
-            Obtén reconocimientos por cada curso completado con éxito.
+            Gana premios al completar cursos y alcanzar tus metas de aprendizaje.
           </p>
         </motion.div>
       </motion.div>
 
-      {/* Marca de fondo sutil */}
+      {/* 🔴 Marca de fondo sutil */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.07 }}

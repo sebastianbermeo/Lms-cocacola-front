@@ -14,10 +14,11 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
       <table className="min-w-full border-collapse">
         <thead className="bg-[#F40009]/90 text-white">
           <tr>
-            <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wide">Imagen</th>
-            <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wide">Título</th>
-            <th className="px-5 py-3 text-left text-sm font-semibold uppercase tracking-wide">Curso asociado</th>
-            <th className="px-5 py-3 text-center text-sm font-semibold uppercase tracking-wide">Acciones</th>
+            <th className="px-5 py-3 text-left text-sm font-semibold uppercase">Imagen</th>
+            <th className="px-5 py-3 text-left text-sm font-semibold uppercase">Título</th>
+            <th className="px-5 py-3 text-left text-sm font-semibold uppercase">Descripción</th>
+            <th className="px-5 py-3 text-left text-sm font-semibold uppercase">Curso asociado</th>
+            <th className="px-5 py-3 text-center text-sm font-semibold uppercase">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -34,17 +35,24 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
                 >
                   <td className="px-5 py-4">
                     {modulo.imagen ? (
-                      <img src={modulo.imagen} alt={modulo.titulo} className="w-14 h-14 rounded-lg object-cover border" />
+                      <img
+                        src={modulo.imagen}
+                        alt={modulo.titulo}
+                        className="w-14 h-14 rounded-lg object-cover border"
+                      />
                     ) : (
-                      <div className="w-14 h-14 rounded-lg bg-gray-100 border flex items-center justify-center text-gray-400 text-sm">N/A</div>
+                      <div className="w-14 h-14 rounded-lg bg-gray-100 border flex items-center justify-center text-gray-400 text-sm">
+                        N/A
+                      </div>
                     )}
                   </td>
                   <td className="px-5 py-4 text-gray-800 font-medium">{modulo.titulo}</td>
-                  <td className="px-5 py-4 text-gray-600 text-sm">{modulo.curso}</td>
+                  <td className="px-5 py-4 text-gray-600 text-sm">{modulo.descripcion}</td>
+                  <td className="px-5 py-4 text-gray-600 text-sm">{modulo.curso?.titulo || '—'}</td>
                   <td className="px-5 py-4 text-center flex justify-center space-x-3">
                     <button
                       onClick={() => onEdit && onEdit(modulo)}
-                      className="p-2 rounded-full hover:bg-red-100 text-[#F40009] transition-colors"
+                      className="p-2 rounded-full hover:bg-red-100 text-[#F40009]"
                     >
                       <Pencil size={18} />
                     </button>
@@ -53,7 +61,7 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
                         setModuloSeleccionado(modulo)
                         setModalOpen(true)
                       }}
-                      className="p-2 rounded-full hover:bg-red-100 text-gray-600 transition-colors"
+                      className="p-2 rounded-full hover:bg-red-100 text-gray-600"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -62,7 +70,7 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="text-center py-8 text-gray-500 italic">
+                <td colSpan="5" className="text-center py-8 text-gray-500 italic">
                   No hay módulos registrados.
                 </td>
               </tr>
@@ -71,13 +79,12 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
         </tbody>
       </table>
 
-      {/* Modal de confirmación */}
       <ModalEliminar
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onConfirm={() => onDelete && onDelete(moduloSeleccionado)}
+        onConfirm={() => onDelete && onDelete(moduloSeleccionado?.id)}
         title={`¿Deseas eliminar el módulo "${moduloSeleccionado?.titulo}"?`}
-        message="Al eliminar este módulo, se eliminarán todas las lecciones relacionadas con él."
+        message="Al eliminar este módulo, se eliminarán todas las lecciones relacionadas."
       />
     </div>
   )

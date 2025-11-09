@@ -3,9 +3,9 @@ import { useState } from 'react'
 import Header from '@/components/dashboard/Header'
 import Footer from '@/components/dashboard/Footer'
 import Inicio from './Inicio/Inicio'
-import Cursos from './Cursos/Cursos'
-import Modulos from './Modulos/Modulos'
-import Lecciones from './Lecciones/Lecciones'
+import Cursos from './VistaMaterial/VistaCursos/VistaCursos'
+import Modulos from './VistaMaterial/VistaModulos/VistaModulos'
+import Lecciones from './VistaMaterial/VistaLecciones/VistaLecciones'
 
 export default function DashboardLayout() {
   const [activeView, setActiveView] = useState('inicio')

@@ -19,9 +19,9 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
       setForm({
         email: usuario.email,
         password: '',
-        displayName: usuario.displayName,
-        rolId: usuario.rolId,
-        foto: usuario.foto || '',
+        displayName: usuario.name,
+        rolId: usuario.role?.id || 2,
+        foto: usuario.imageUrl || '',
         id: usuario.id,
       })
     }
@@ -44,7 +44,6 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
         animate={{ scale: 1, opacity: 1 }}
         className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-8 relative"
       >
-        {/* Botón cerrar */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
@@ -52,14 +51,11 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
           <X size={22} />
         </button>
 
-        {/* Encabezado */}
         <h2 className="text-2xl font-bold text-[#F40009] mb-6">
           {usuario ? 'Editar Usuario' : 'Registrar Usuario'}
         </h2>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Nombre */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nombre completo <span className="text-[#F40009]">*</span>
@@ -70,12 +66,11 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
               value={form.displayName}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 bg-white focus:ring-2 focus:ring-[#F40009]"
-              placeholder="Ejemplo: Sebastian Torres"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 bg-white focus:ring-2 focus:ring-[#F40009]"
+              placeholder="Ejemplo: Camilo Vargas"
             />
           </div>
 
-          {/* Correo */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Correo electrónico <span className="text-[#F40009]">*</span>
@@ -86,12 +81,11 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
               value={form.email}
               onChange={handleChange}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 bg-white focus:ring-2 focus:ring-[#F40009]"
-              placeholder="sebastian@gmail.com"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 bg-white focus:ring-2 focus:ring-[#F40009]"
+              placeholder="camilo@gmail.com"
             />
           </div>
 
-          {/* Contraseña (solo al crear) */}
           {!usuario && (
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -103,22 +97,19 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 bg-white focus:ring-2 focus:ring-[#F40009]"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 bg-white focus:ring-2 focus:ring-[#F40009]"
                 placeholder="••••••••"
               />
-
-              {/* Ícono del ojo */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-gray-500 hover:text-[#F40009] transition-colors"
+                className="absolute right-3 top-9 text-gray-500 hover:text-[#F40009]"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           )}
 
-          {/* Imagen de perfil */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Foto de perfil (URL)
@@ -130,11 +121,10 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
                 name="foto"
                 value={form.foto}
                 onChange={handleChange}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 bg-white focus:ring-2 focus:ring-[#F40009]"
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-gray-800 bg-white focus:ring-2 focus:ring-[#F40009]"
                 placeholder="https://mi-foto.com/avatar.jpg"
               />
             </div>
-
             {form.foto && (
               <img
                 src={form.foto}
@@ -144,7 +134,6 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
             )}
           </div>
 
-          {/* Rol */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Rol <span className="text-[#F40009]">*</span>
@@ -161,7 +150,6 @@ export default function ModalUsuarios({ onClose, onGuardar, usuario }) {
             </select>
           </div>
 
-          {/* Botones */}
           <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"

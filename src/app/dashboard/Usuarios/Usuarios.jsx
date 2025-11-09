@@ -4,56 +4,47 @@ import { motion } from 'framer-motion'
 import FiltroUsuarios from './FiltroUsuarios'
 import TablaUsuarios from './TablaUsuarios'
 import ModalUsuarios from './ModalUsuarios'
+import { useUsuarios } from '@/app/hooks/Usuarios/useUsuarios'
 
 export default function Usuarios() {
-  const [usuarios, setUsuarios] = useState([
-    { id: 1, email: 'admin@coca-cola.com', displayName: 'Administrador', rolId: 1, activo: true },
-    { id: 2, email: 'user@coca-cola.com', displayName: 'Juan Pérez', rolId: 2, activo: true },
-    { id: 3, email: 'inactivo@coca-cola.com', displayName: 'Carlos Ruiz', rolId: 2, activo: false },
-  ])
+  const {
+    usuarios,
+    crearUsuario,
+    editarUsuario,
+    toggleActivo,
+    filtrarPorRol,
+    fetchUsuarios,
+  } = useUsuarios()
 
-  const [filtroRol, setFiltroRol] = useState('Todos')
   const [busqueda, setBusqueda] = useState('')
+  const [filtroRol, setFiltroRol] = useState('Todos')
   const [usuarioEditando, setUsuarioEditando] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
 
   const roles = { 1: 'Admin', 2: 'User' }
 
-  // Filtrar por búsqueda o rol
   const usuariosFiltrados = usuarios.filter((u) => {
-    const coincideRol = filtroRol === 'Todos' || roles[u.rolId] === filtroRol
+    const coincideRol = filtroRol === 'Todos' || roles[u.role?.id] === filtroRol
     const coincideBusqueda =
-      u.displayName.toLowerCase().includes(busqueda.toLowerCase()) ||
+      u.name.toLowerCase().includes(busqueda.toLowerCase()) ||
       u.email.toLowerCase().includes(busqueda.toLowerCase())
     return coincideRol && coincideBusqueda
   })
 
-  const handleGuardarUsuario = (usuario) => {
+  const handleGuardarUsuario = async (usuario) => {
     if (usuario.id) {
-      setUsuarios(
-        usuarios.map((u) => (u.id === usuario.id ? { ...u, ...usuario } : u))
-      )
+      await editarUsuario(usuario)
     } else {
-      setUsuarios([
-        ...usuarios,
-        { ...usuario, id: usuarios.length + 1, activo: true },
-      ])
+      await crearUsuario(usuario)
     }
     setModalOpen(false)
     setUsuarioEditando(null)
+    fetchUsuarios()
   }
 
   const handleEditar = (usuario) => {
     setUsuarioEditando(usuario)
     setModalOpen(true)
-  }
-
-  const handleToggleActivo = (id) => {
-    setUsuarios(
-      usuarios.map((u) =>
-        u.id === id ? { ...u, activo: !u.activo } : u
-      )
-    )
   }
 
   return (
@@ -69,7 +60,10 @@ export default function Usuarios() {
 
       <FiltroUsuarios
         onBuscar={setBusqueda}
-        onFiltrar={setFiltroRol}
+        onFiltrar={(rol) => {
+          setFiltroRol(rol)
+          filtrarPorRol(rol)
+        }}
         onAgregar={() => {
           setUsuarioEditando(null)
           setModalOpen(true)
@@ -79,7 +73,7 @@ export default function Usuarios() {
       <TablaUsuarios
         usuarios={usuariosFiltrados}
         onEditar={handleEditar}
-        onToggleActivo={handleToggleActivo}
+        onToggleActivo={toggleActivo}
       />
 
       {modalOpen && (

@@ -1,26 +1,30 @@
 'use client'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { User, Lock, ArrowRight, Shield } from 'lucide-react'
+import { User, Lock, ArrowRight, Shield, Eye, EyeOff } from 'lucide-react'
+import { useLogin } from '@/app/hooks/auth/useLogin'
 
 export default function Login() {
+  const { login, loading } = useLogin()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    // Redirección directa al dashboard
-    window.location.href = '/dashboard'
+    const result = await login(email, password)
+    if (result) {
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-white to-red-50">
-      {/* Lado Izquierdo - Contenido de Marca */}
+      {/* Lado rojo con logo y texto */}
       <div className="w-1/2 flex flex-col justify-center p-16 bg-[#F40009] text-white relative overflow-hidden">
         <div className="z-10 relative">
           <img
-            src="/coca-cola-logo-white.png"
+            src="/Img/logo_blanco.png"
             alt="Coca-Cola Logo"
             className="mb-8 w-48"
           />
@@ -31,22 +35,14 @@ export default function Login() {
             Desarrolla tus habilidades profesionales con el respaldo de una marca global
           </p>
         </div>
-
-        {/* Elementos decorativos */}
         <div className="absolute top-0 right-0 opacity-20">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="400"
-            height="400"
-            viewBox="0 0 200 200"
-            fill="white"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 200 200" fill="white">
             <circle cx="100" cy="100" r="80" />
           </svg>
         </div>
       </div>
 
-      {/* Lado Derecho - Formulario */}
+      {/* Lado del formulario */}
       <div className="w-1/2 flex items-center justify-center p-16">
         <motion.div
           initial={{ opacity: 0, x: 50 }}
@@ -64,6 +60,7 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Campo de correo */}
             <div className="relative group">
               <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#F40009] transition-colors" />
               <input
@@ -71,31 +68,35 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Correo electrónico"
-                className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none 
-                  transition-all duration-300 bg-transparent focus:ring-0 focus:outline-none"
+                className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none transition-all duration-300 bg-transparent focus:ring-0"
                 required
               />
             </div>
 
+            {/* Campo de contraseña con ojo */}
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-[#F40009] transition-colors" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Contraseña"
-                className="w-full pl-12 pr-4 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none 
-                  transition-all duration-300 bg-transparent focus:ring-0 focus:outline-none"
+                className="w-full pl-12 pr-12 py-4 border-b-2 border-gray-200 text-gray-900 placeholder-gray-500 focus:border-[#F40009] outline-none transition-all duration-300 bg-transparent focus:ring-0"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#F40009] transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
+            {/* Recordarme y contraseña olvidada */}
             <div className="flex justify-between items-center">
               <label className="flex items-center">
-                <input 
-                  type="checkbox" 
-                  className="mr-2 text-[#F40009] focus:ring-[#F40009]"
-                />
+                <input type="checkbox" className="mr-2 text-[#F40009] focus:ring-[#F40009]" />
                 <span className="text-gray-600">Recordarme</span>
               </label>
               <a href="#" className="text-[#F40009] hover:underline">
@@ -103,17 +104,20 @@ export default function Login() {
               </a>
             </div>
 
+            {/* Botón de inicio de sesión */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
+              disabled={loading}
               className="w-full bg-[#F40009] text-white py-4 rounded-full hover:bg-red-700 transition-colors flex items-center justify-center space-x-2 group"
             >
-              <span>Iniciar Sesión</span>
+              <span>{loading ? 'Cargando...' : 'Iniciar Sesión'}</span>
               <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </motion.button>
           </form>
 
+          {/* Acceso seguro */}
           <div className="mt-6 text-center flex items-center justify-center text-gray-600">
             <Shield className="mr-2 text-[#F40009]" size={20} />
             <p>Acceso seguro y protegido</p>

@@ -4,19 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Pencil, XCircle, CheckCircle } from 'lucide-react'
 
 export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
-  const roles = { 1: 'Admin', 2: 'User' }
   const [confirmModal, setConfirmModal] = useState({ open: false, usuario: null })
 
-  const handleConfirm = (usuario) => {
-    setConfirmModal({ open: true, usuario })
-  }
+  const handleConfirm = (usuario) => setConfirmModal({ open: true, usuario })
 
   const handleConfirmarCambio = () => {
-    if (confirmModal.usuario) {
-      onToggleActivo(confirmModal.usuario.id)
-    }
+    if (confirmModal.usuario) onToggleActivo(confirmModal.usuario)
     setConfirmModal({ open: false, usuario: null })
   }
+
+  const getInicial = (nombre) => nombre ? nombre.charAt(0).toUpperCase() : '?'
 
   return (
     <>
@@ -24,6 +21,7 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
         <table className="w-full text-sm text-gray-700">
           <thead className="bg-[#F40009] text-white text-left">
             <tr>
+              <th className="py-3 px-4">Foto</th>
               <th className="py-3 px-4">Nombre</th>
               <th className="py-3 px-4">Correo electrónico</th>
               <th className="py-3 px-4">Rol</th>
@@ -41,9 +39,22 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
                   transition={{ delay: i * 0.05 }}
                   className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="py-3 px-4 font-medium">{u.displayName}</td>
+                  <td className="py-3 px-4">
+                    {u.imageUrl ? (
+                      <img
+                        src={u.imageUrl}
+                        alt={u.name}
+                        className="w-10 h-10 rounded-full object-cover border"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold border">
+                        {getInicial(u.name)}
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 font-medium">{u.name}</td>
                   <td className="py-3 px-4">{u.email}</td>
-                  <td className="py-3 px-4">{roles[u.rolId]}</td>
+                  <td className="py-3 px-4">{u.role?.name}</td>
                   <td className="py-3 px-4 text-center">
                     <div
                       onClick={() => handleConfirm(u)}
@@ -60,7 +71,6 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
                     <button
                       onClick={() => onEditar(u)}
                       className="text-[#F40009] hover:text-red-700 transition"
-                      title="Editar usuario"
                     >
                       <Pencil size={18} />
                     </button>
@@ -69,7 +79,7 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="text-center text-gray-500 py-6 italic">
+                <td colSpan="6" className="text-center text-gray-500 py-6 italic">
                   No hay usuarios registrados
                 </td>
               </tr>
@@ -78,7 +88,6 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
         </table>
       </div>
 
-      {/* Modal de confirmación */}
       <AnimatePresence>
         {confirmModal.open && (
           <motion.div
@@ -94,7 +103,6 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
               transition={{ duration: 0.3 }}
               className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center relative"
             >
-              {/* Icono */}
               <div className="flex justify-center mb-4">
                 {confirmModal.usuario?.activo ? (
                   <XCircle className="text-red-500" size={48} />
@@ -102,27 +110,15 @@ export default function TablaUsuarios({ usuarios, onEditar, onToggleActivo }) {
                   <CheckCircle className="text-green-500" size={48} />
                 )}
               </div>
-
               <h2 className="text-2xl font-bold text-gray-800 mb-3">
                 {confirmModal.usuario?.activo
                   ? 'Desactivar usuario'
                   : 'Activar usuario'}
               </h2>
-
               <p className="text-gray-600 mb-6">
-                ¿Estás seguro de que deseas{' '}
-                {confirmModal.usuario?.activo ? (
-                  <span className="text-red-600 font-medium">desactivar</span>
-                ) : (
-                  <span className="text-green-600 font-medium">activar</span>
-                )}{' '}
-                la cuenta de{' '}
-                <span className="font-semibold">
-                  {confirmModal.usuario?.displayName}
-                </span>
-                ?
+                ¿Deseas {confirmModal.usuario?.activo ? 'desactivar' : 'activar'} la cuenta de{' '}
+                <span className="font-semibold">{confirmModal.usuario?.name}</span>?
               </p>
-
               <div className="flex justify-center space-x-4">
                 <button
                   onClick={() => setConfirmModal({ open: false, usuario: null })}

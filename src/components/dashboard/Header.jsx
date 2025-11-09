@@ -1,29 +1,51 @@
 'use client'
-import { useState } from 'react'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { ChevronDown, LogOut, Award } from 'lucide-react'
+import { useLogin } from '@/app/hooks/auth/useLogin'
 
 export default function Header({ activeView, onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [usuarioActivo, setUsuarioActivo] = useState(null)
+  const { logout, getUserData } = useLogin()
 
-  // 🔹 Usuario simulado (más adelante se reemplaza por datos reales)
-  const usuarioActivo = {
-    nombre: 'Juan Pérez',
-    rol: 'Admin',
-    foto: '', // ← si no tiene imagen, no se mostrará nada
-  }
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) setUsuarioActivo(JSON.parse(userData))
+  }, [])
 
-  const menuItems = [
+  const refrescarUsuario = useCallback(async () => {
+    const stored = localStorage.getItem('user')
+    const parsed = stored ? JSON.parse(stored) : null
+    if (!parsed?.id) return
+    const updated = await getUserData(parsed.id)
+    if (updated) setUsuarioActivo(updated)
+  }, [getUserData])
+
+  useEffect(() => {
+    refrescarUsuario()
+    const interval = setInterval(refrescarUsuario, 30000)
+    return () => clearInterval(interval)
+  }, [refrescarUsuario])
+
+  const baseMenu = [
     { label: 'Inicio', value: 'inicio' },
     { label: 'Cursos', value: 'cursos' },
-    { label: 'Certificados', value: 'certificados' },
+    { label: 'Premios', value: 'premios' },
+  ]
+
+  const adminMenu = [
     { label: 'Usuarios', value: 'usuarios' },
     { label: 'Agregar Material', value: 'agregar' },
   ]
 
+  const menuItems =
+    usuarioActivo?.role === 'admin'
+      ? [...baseMenu, ...adminMenu]
+      : baseMenu
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="flex items-center justify-between px-8 py-4">
-        {/* Logo */}
         <img
           src="/Img/Coca-Cola_logo.png"
           alt="Coca-Cola Logo"
@@ -32,7 +54,6 @@ export default function Header({ activeView, onNavigate }) {
           className="object-contain"
         />
 
-        {/* Menú principal */}
         <nav className="hidden md:flex items-center space-x-8">
           {menuItems.map((item) => (
             <button
@@ -49,29 +70,38 @@ export default function Header({ activeView, onNavigate }) {
           ))}
         </nav>
 
-        {/* Usuario */}
         <div className="flex items-center space-x-6 relative">
+          <div className="flex items-center bg-red-50 text-[#F40009] px-3 py-1 rounded-full font-semibold">
+            <Award size={18} className="mr-2" />
+            <span>{usuarioActivo?.points ?? 0}</span>
+          </div>
+
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center space-x-2 hover:bg-red-50 px-3 py-2 rounded-full transition-all"
+              className="flex items-center space-x-3 hover:bg-red-50 px-3 py-2 rounded-full transition-all"
             >
-              {/* Solo muestra imagen si existe */}
-              {usuarioActivo.foto && (
+              {usuarioActivo?.foto ? (
                 <img
                   src={usuarioActivo.foto}
-                  alt="Usuario"
+                  alt={usuarioActivo.name}
                   width={40}
                   height={40}
                   className="rounded-full border border-gray-200 object-cover"
                 />
+              ) : (
+                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold border">
+                  {usuarioActivo?.name?.charAt(0).toUpperCase() || '?'}
+                </div>
               )}
 
               <div className="text-left hidden sm:block">
                 <p className="font-semibold text-gray-800 text-sm">
-                  {usuarioActivo.nombre}
+                  {usuarioActivo?.name || 'Usuario'}
                 </p>
-                <p className="text-xs text-gray-500">{usuarioActivo.rol}</p>
+                <p className="text-xs text-gray-500 capitalize">
+                  {usuarioActivo?.role || ''}
+                </p>
               </div>
 
               <ChevronDown
@@ -82,12 +112,11 @@ export default function Header({ activeView, onNavigate }) {
               />
             </button>
 
-            {/* Menú desplegable */}
             {menuOpen && (
               <div className="absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-50">
                 <button
                   className="w-full text-left px-5 py-3 hover:bg-red-50 text-gray-700 flex items-center space-x-2"
-                  onClick={() => alert('Cerrando sesión...')}
+                  onClick={logout}
                 >
                   <LogOut className="text-[#F40009]" size={18} />
                   <span>Cerrar sesión</span>
