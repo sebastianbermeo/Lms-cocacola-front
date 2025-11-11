@@ -56,14 +56,12 @@ export default function TablaLecciones({ lecciones = [], onEdit, onDelete }) {
                         setDetalleOpen(true)
                       }}
                       className="p-2 rounded-full hover:bg-red-100 text-blue-600 transition-colors"
-                      title="Ver detalles"
                     >
                       <Eye size={18} />
                     </button>
                     <button
                       onClick={() => onEdit && onEdit(leccion)}
                       className="p-2 rounded-full hover:bg-red-100 text-[#F40009] transition-colors"
-                      title="Editar"
                     >
                       <Pencil size={18} />
                     </button>
@@ -73,7 +71,6 @@ export default function TablaLecciones({ lecciones = [], onEdit, onDelete }) {
                         setModalOpen(true)
                       }}
                       className="p-2 rounded-full hover:bg-red-100 text-gray-600 transition-colors"
-                      title="Eliminar"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -91,7 +88,6 @@ export default function TablaLecciones({ lecciones = [], onEdit, onDelete }) {
         </tbody>
       </table>
 
-      {/* Modal de eliminar */}
       <ModalEliminar
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -100,7 +96,6 @@ export default function TablaLecciones({ lecciones = [], onEdit, onDelete }) {
         message="Esta acción eliminará permanentemente esta lección."
       />
 
-      {/* Modal de detalles */}
       <DetallesLeccion
         open={detalleOpen}
         onClose={() => setDetalleOpen(false)}

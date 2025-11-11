@@ -1,6 +1,6 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Star, Video, FileText, CalendarDays, BookOpen } from 'lucide-react'
+import { X, Video, FileText, CalendarDays, BookOpen } from 'lucide-react'
 
 export default function DetallesLeccion({ open, onClose, leccion }) {
   if (!open || !leccion) return null
@@ -20,22 +20,16 @@ export default function DetallesLeccion({ open, onClose, leccion }) {
           exit={{ scale: 0.9, opacity: 0, y: 30 }}
           transition={{ duration: 0.25 }}
         >
-          {/* Botón de cerrar */}
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 text-gray-500 hover:text-[#F40009] transition-colors"
-          >
+          <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-[#F40009]">
             <X size={22} />
           </button>
 
-          {/* Encabezado */}
           <div className="bg-[#F40009] text-white p-6 rounded-t-2xl">
             <h2 className="text-3xl font-bold mb-1">{leccion.titulo}</h2>
             <p className="text-white/90">{leccion.descripcion}</p>
           </div>
 
           <div className="p-6 space-y-6">
-            {/* Imagen y datos básicos */}
             <div className="flex flex-col md:flex-row gap-6">
               <img
                 src={leccion.imagen}
@@ -45,20 +39,16 @@ export default function DetallesLeccion({ open, onClose, leccion }) {
 
               <div className="flex-1 space-y-2 text-gray-700">
                 <p>
-                  <strong className="text-[#F40009]">Módulo:</strong>{' '}
-                  {leccion.modulo?.titulo || '—'}
+                  <strong className="text-[#F40009]">Módulo:</strong> {leccion.modulo?.titulo || '—'}
                 </p>
                 <p>
-                  <strong className="text-[#F40009]">Puntos por completar:</strong>{' '}
-                  <span className="inline-flex items-center gap-1 text-yellow-600 font-semibold">
-                    <Star size={16} /> {leccion.puntos ?? 0}
-                  </span>
+                  <strong className="text-[#F40009]">Puntos del quiz:</strong>{' '}
+                  {leccion.quiz?.puntos ?? 0}
                 </p>
                 <p>
                   <strong className="text-[#F40009]">Creado el:</strong>{' '}
                   <span className="inline-flex items-center gap-1">
-                    <CalendarDays size={15} />{' '}
-                    {new Date(leccion.createdAt).toLocaleDateString()}
+                    <CalendarDays size={15} /> {new Date(leccion.createdAt).toLocaleDateString()}
                   </span>
                 </p>
                 <p>
@@ -68,7 +58,6 @@ export default function DetallesLeccion({ open, onClose, leccion }) {
               </div>
             </div>
 
-            {/* Video */}
             {leccion.videoUrl && (
               <div className="bg-red-50 rounded-xl p-4 border border-[#F40009]/20">
                 <h3 className="text-lg font-semibold text-[#F40009] mb-3 flex items-center gap-2">
@@ -85,7 +74,6 @@ export default function DetallesLeccion({ open, onClose, leccion }) {
               </div>
             )}
 
-            {/* Contenido */}
             {leccion.contenidoTexto && (
               <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
                 <h3 className="text-lg font-semibold text-[#F40009] mb-3 flex items-center gap-2">
@@ -97,7 +85,6 @@ export default function DetallesLeccion({ open, onClose, leccion }) {
               </div>
             )}
 
-            {/* Archivos adjuntos */}
             {Array.isArray(leccion.archivos) && leccion.archivos.length > 0 && (
               <div className="bg-red-50 border border-[#F40009]/20 rounded-xl p-5">
                 <h3 className="text-lg font-semibold text-[#F40009] mb-3 flex items-center gap-2">

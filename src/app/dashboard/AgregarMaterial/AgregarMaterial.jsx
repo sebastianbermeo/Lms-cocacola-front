@@ -80,7 +80,7 @@ export default function AgregarMaterial() {
           { key: 'curso', icon: <BookOpen size={18} />, label: 'Cursos' },
           { key: 'modulo', icon: <Layers3 size={18} />, label: 'Módulos' },
           { key: 'leccion', icon: <FileText size={18} />, label: 'Lecciones' },
-          {/*{ key: 'quiz', icon: <FileText size={18} />, label: 'Evaluaciones' },*/}
+          { key: 'quiz', icon: <FileText size={18} />, label: 'Evaluaciones' },
         ].map((tab) => (
           <button
             key={tab.key}

@@ -5,7 +5,7 @@ import { Plus, Save, RotateCcw, Upload, Trash2 } from 'lucide-react'
 import { useLeccion } from '@/app/hooks/AgregarMaterial/Leccion/useLeccion'
 
 export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando, onCancelarEdicion }) {
-  const { crearLeccion, editarLeccion, eliminarLeccion, obtenerLecciones } = useLeccion()
+  const { crearLeccion, editarLeccion } = useLeccion()
   const [form, setForm] = useState({
     titulo: '',
     descripcion: '',
@@ -14,7 +14,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
     archivos: [],
     contenidoTexto: '',
     moduloId: '',
-    puntos: '',            // 👈 nuevo campo en el estado
   })
   const [editando, setEditando] = useState(false)
 
@@ -28,7 +27,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
         archivos: leccionEditando.archivos || [],
         contenidoTexto: leccionEditando.contenidoTexto || '',
         moduloId: leccionEditando.modulo?.id || '',
-        puntos: leccionEditando.puntos ?? '',     // 👈 traer puntos al editar
       })
       setEditando(true)
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -42,7 +40,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
         archivos: [],
         contenidoTexto: '',
         moduloId: '',
-        puntos: '',          // 👈 reset puntos
       })
     }
   }, [leccionEditando])
@@ -50,32 +47,15 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
   const handleArchivosChange = (e) => {
     const files = Array.from(e.target.files)
     const pdfs = files.filter((file) => file.type === 'application/pdf')
-    if (pdfs.length !== files.length) {
-      alert('Solo puedes subir archivos PDF.')
-      return
-    }
+    if (pdfs.length !== files.length) return
     setForm({ ...form, archivos: pdfs.map((f) => f.name) })
   }
 
   const limpiarArchivos = () => setForm({ ...form, archivos: [] })
 
   const guardarLeccion = async () => {
-    // Validaciones mínimas
-    if (!form.titulo || !form.descripcion || !form.imagen || !form.contenidoTexto || !form.moduloId) {
-      alert('Por favor, completa todos los campos obligatorios.')
-      return
-    }
-    if (form.puntos === '' || isNaN(Number(form.puntos)) || Number(form.puntos) < 0) {
-      alert('Por favor, ingresa un valor de puntos válido (0 o mayor).')
-      return
-    }
-
-    const payload = {
-      ...form,
-      moduloId: Number(form.moduloId),
-      puntos: Number(form.puntos),   // 👈 asegurar número
-    }
-
+    if (!form.titulo || !form.descripcion || !form.imagen || !form.contenidoTexto || !form.moduloId) return
+    const payload = { ...form, moduloId: Number(form.moduloId) }
     if (editando) {
       await onGuardar({ ...payload, id: leccionEditando.id })
       setEditando(false)
@@ -83,7 +63,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
     } else {
       await onGuardar(payload)
     }
-
     setForm({
       titulo: '',
       descripcion: '',
@@ -92,7 +71,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
       archivos: [],
       contenidoTexto: '',
       moduloId: '',
-      puntos: '',
     })
   }
 
@@ -114,7 +92,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
               type="text"
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none"
               placeholder="Ejemplo: Escucha activa"
             />
           </div>
@@ -145,7 +123,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
               value={form.descripcion}
               onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none resize-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none resize-none"
               placeholder="Breve descripción visible en la tarjeta de la lección."
             />
           </div>
@@ -159,7 +137,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
               value={form.imagen}
               onChange={(e) => setForm({ ...form, imagen: e.target.value })}
               placeholder="https://..."
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none"
             />
             {form.imagen && (
               <img
@@ -168,22 +146,6 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
                 className="mt-2 rounded-lg w-full h-32 object-cover border"
               />
             )}
-          </div>
-
-          {/* Campo de puntos */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Puntos por completar <span className="text-[#F40009]">*</span>
-            </label>
-            <input
-              type="number"
-              min={0}
-              step={1}
-              value={form.puntos}
-              onChange={(e) => setForm({ ...form, puntos: e.target.value })}
-              placeholder="Ej: 10"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none"
-            />
           </div>
         </div>
       </div>
@@ -199,7 +161,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
               value={form.videoUrl}
               onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
               placeholder="https://youtube.com/embed/..."
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none"
             />
           </div>
 
@@ -213,9 +175,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
 
               {form.archivos.length > 0 && (
                 <>
-                  <span className="text-gray-600 text-sm">
-                    {form.archivos.length} archivo(s) seleccionado(s)
-                  </span>
+                  <span className="text-gray-600 text-sm">{form.archivos.length} archivo(s)</span>
                   <button
                     onClick={limpiarArchivos}
                     className="flex items-center border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all"
@@ -235,7 +195,7 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
               value={form.contenidoTexto}
               onChange={(e) => setForm({ ...form, contenidoTexto: e.target.value })}
               rows={5}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:ring-[#F40009] outline-none resize-none"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-[#F40009] outline-none resize-none"
               placeholder="Contenido o explicación completa de la lección..."
             />
           </div>

@@ -11,10 +11,18 @@ export function useLeccion() {
   const obtenerLecciones = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${API_URL}/leccion`, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch(`${API_URL}/leccion`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       if (!res.ok) throw new Error('Error al obtener lecciones')
       const data = await res.json()
-      setLecciones(Array.isArray(data) ? data : [])
+      const lista = Array.isArray(data)
+        ? data.map((l) => ({
+            ...l,
+            puntosQuiz: l.quiz ? l.quiz.puntos : 0,
+          }))
+        : []
+      setLecciones(lista)
     } catch (err) {
       toast.error(err.message || 'Error al cargar lecciones')
     } finally {
@@ -25,11 +33,14 @@ export function useLeccion() {
   const obtenerLeccionPorId = async (id) => {
     try {
       setLoading(true)
-      const res = await fetch(`${API_URL}/leccion/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch(`${API_URL}/leccion/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       if (!res.ok) throw new Error('Error al obtener lección')
       const data = await res.json()
-      setLeccion(data)
-      return data
+      const withPuntos = { ...data, puntosQuiz: data.quiz ? data.quiz.puntos : 0 }
+      setLeccion(withPuntos)
+      return withPuntos
     } catch (err) {
       toast.error(err.message || 'Error al obtener lección')
       return null
@@ -42,7 +53,10 @@ export function useLeccion() {
     try {
       const res = await fetch(`${API_URL}/leccion`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(nuevaLeccion),
       })
       if (!res.ok) {
@@ -60,7 +74,10 @@ export function useLeccion() {
     try {
       const res = await fetch(`${API_URL}/leccion/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(data),
       })
       if (!res.ok) {
@@ -95,5 +112,14 @@ export function useLeccion() {
     obtenerLecciones()
   }, [])
 
-  return { lecciones, leccion, loading, obtenerLecciones, obtenerLeccionPorId, crearLeccion, editarLeccion, eliminarLeccion }
+  return {
+    lecciones,
+    leccion,
+    loading,
+    obtenerLecciones,
+    obtenerLeccionPorId,
+    crearLeccion,
+    editarLeccion,
+    eliminarLeccion,
+  }
 }
