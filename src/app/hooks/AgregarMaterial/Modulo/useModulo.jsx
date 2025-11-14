@@ -62,7 +62,12 @@ export function useModulo() {
       const res = await fetch(`${API_URL}/modulos`, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ titulo, descripcion, imagen, cursoId }),
+        body: JSON.stringify({
+          titulo,
+          descripcion,
+          imagen,
+          cursoId: Number(cursoId),
+        }),
       })
       if (handleUnauthorized(res)) return
       if (!res.ok) {
@@ -81,7 +86,12 @@ export function useModulo() {
       const res = await fetch(`${API_URL}/modulos/${id}`, {
         method: 'PATCH',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ titulo, descripcion, imagen, cursoId }),
+        body: JSON.stringify({
+          titulo,
+          descripcion,
+          imagen,
+          cursoId: Number(cursoId),
+        }),
       })
       if (handleUnauthorized(res)) return
       if (!res.ok) {
@@ -117,5 +127,14 @@ export function useModulo() {
     obtenerModulos()
   }, [])
 
-  return { modulos, modulo, loading, obtenerModulos, obtenerModuloPorId, crearModulo, editarModulo, eliminarModulo }
+  return {
+    modulos,
+    modulo,
+    loading,
+    obtenerModulos,
+    obtenerModuloPorId,
+    crearModulo,
+    editarModulo,
+    eliminarModulo,
+  }
 }

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Save, RotateCcw, Upload, Trash2 } from 'lucide-react'
+import { Plus, Save, RotateCcw, Upload, Trash2, PanelTop, BookOpen } from 'lucide-react'
 import { useLeccion } from '@/app/hooks/AgregarMaterial/Leccion/useLeccion'
 
 export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando, onCancelarEdicion }) {
@@ -81,7 +81,10 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
       </h2>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-semibold text-[#F40009] mb-4">🧩 Datos de la tarjeta</h3>
+        <h3 className="text-lg font-semibold text-[#F40009] mb-4 flex items-center gap-2">
+          <PanelTop size={22} className="text-[#F40009]" />
+          Datos de la tarjeta
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -151,7 +154,10 @@ export default function CrearLeccion({ modulos = [], onGuardar, leccionEditando,
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
-        <h3 className="text-lg font-semibold text-[#F40009] mb-4">📖 Contenido de la lección</h3>
+        <h3 className="text-lg font-semibold text-[#F40009] mb-4 flex items-center gap-2">
+          <BookOpen size={22} className="text-[#F40009]" />
+          Contenido de la Lección
+        </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

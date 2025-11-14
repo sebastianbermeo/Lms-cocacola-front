@@ -16,9 +16,12 @@ export function usePremios() {
       headers: { Authorization: `Bearer ${token}` }
     })
     const data = await res.json().catch(() => null)
-    if (Array.isArray(data)) setPremios(data)
-    else if (Array.isArray(data?.items)) setPremios(data.items)
-    else setPremios([])
+    const lista = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
+
+    const hoy = new Date().toISOString().slice(0, 10)
+    const filtrados = lista.filter(p => !p.fechaLimite || p.fechaLimite >= hoy)
+
+    setPremios(filtrados)
     setLoading(false)
   }
 
@@ -27,14 +30,9 @@ export function usePremios() {
       headers: { Authorization: `Bearer ${token}` }
     })
     const data = await res.json().catch(() => null)
+    const lista = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
 
-    const lista = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.items)
-      ? data.items
-      : []
-
-    const normalizados = lista.map((c) => ({
+    const normalizados = lista.map(c => ({
       ...c,
       premioId: c.premioId ?? c.premio?.id ?? null
     }))
@@ -47,14 +45,9 @@ export function usePremios() {
       headers: { Authorization: `Bearer ${token}` }
     })
     const data = await res.json().catch(() => null)
+    const lista = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : []
 
-    const lista = Array.isArray(data)
-      ? data
-      : Array.isArray(data?.items)
-      ? data.items
-      : []
-
-    const normalizados = lista.map((c) => ({
+    const normalizados = lista.map(c => ({
       ...c,
       premioId: c.premioId ?? c.premio?.id ?? null
     }))

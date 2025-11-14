@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Save, RotateCcw } from 'lucide-react'
+import { Plus, Save, RotateCcw, BookOpen } from 'lucide-react'
 import TablaCursos from './TablaCursos'
 
 export default function CrearCurso({ cursos = [], onGuardar, onEdit, onDelete, cursoEditando, onCancelarEdicion }) {
@@ -23,13 +23,21 @@ export default function CrearCurso({ cursos = [], onGuardar, onEdit, onDelete, c
     }
   }, [cursoEditando])
 
+  const limpiarFormulario = () => {
+    setForm({ titulo: '', descripcion: '', imagen: '' })
+    setEditando(false)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+
     if (editando) {
       onGuardar({ ...form, id: cursoEditando.id })
     } else {
       onGuardar(form)
     }
+
+    limpiarFormulario()
   }
 
   return (
@@ -39,7 +47,11 @@ export default function CrearCurso({ cursos = [], onGuardar, onEdit, onDelete, c
       </h2>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-semibold text-[#F40009] mb-4">🎓 Datos del curso</h3>
+        <h3 className="text-lg font-semibold text-[#F40009] mb-4 flex items-center gap-2">
+          <BookOpen size={22} className="text-[#F40009]" />
+          Datos del curso
+        </h3>
+
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -90,12 +102,16 @@ export default function CrearCurso({ cursos = [], onGuardar, onEdit, onDelete, c
             {editando && (
               <button
                 type="button"
-                onClick={onCancelarEdicion}
+                onClick={() => {
+                  limpiarFormulario()
+                  onCancelarEdicion()
+                }}
                 className="flex items-center border border-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-100 transition-all"
               >
                 <RotateCcw size={18} className="mr-2" /> Cancelar
               </button>
             )}
+
             <button
               type="submit"
               className="flex items-center bg-[#F40009] text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all"

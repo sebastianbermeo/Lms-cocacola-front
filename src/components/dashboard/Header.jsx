@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronDown, LogOut, Award } from 'lucide-react'
+import { ChevronDown, LogOut, Coins } from 'lucide-react'
 import { useLogin } from '@/app/hooks/auth/useLogin'
 
 export default function Header({ activeView, onNavigate }) {
@@ -91,7 +91,7 @@ export default function Header({ activeView, onNavigate }) {
 
         <div className="flex items-center space-x-6 relative">
           <div className="flex items-center bg-red-50 text-[#F40009] px-3 py-1 rounded-full font-semibold">
-            <Award size={18} className="mr-2" />
+            <Coins size={18} className="mr-2 text-[#F40009]" />
             <span>{usuarioActivo?.points ?? 0}</span>
           </div>
 

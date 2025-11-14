@@ -12,15 +12,15 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
     img: ''
   })
 
+  const hoy = new Date().toISOString().split('T')[0]
+
   useEffect(() => {
     if (premio) {
       setForm({
         nombre: premio.nombre || '',
         puntos: premio.puntos != null ? String(premio.puntos) : '',
         cantidad: premio.cantidad != null ? String(premio.cantidad) : '',
-        fechaLimite: premio.fechaLimite
-          ? String(premio.fechaLimite).slice(0, 10)
-          : '',
+        fechaLimite: premio.fechaLimite ? String(premio.fechaLimite).slice(0, 10) : '',
         img: premio.img || ''
       })
     }
@@ -64,6 +64,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
         <h2 className="text-2xl font-bold text-[#F40009] mb-6">{titulo}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nombre del premio
@@ -76,6 +77,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
                 value={form.nombre}
                 onChange={handleChange}
                 required
+                placeholder="Ejemplo: Tarjeta regalo"
                 className="w-full py-2 bg-transparent outline-none text-gray-700"
               />
             </div>
@@ -93,6 +95,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
                 value={form.puntos}
                 onChange={handleChange}
                 required
+                placeholder="Ejemplo: 500"
                 className="w-full py-2 bg-transparent outline-none text-gray-700"
               />
             </div>
@@ -110,6 +113,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
                 value={form.cantidad}
                 onChange={handleChange}
                 required
+                placeholder="Ejemplo: 10"
                 className="w-full py-2 bg-transparent outline-none text-gray-700"
               />
             </div>
@@ -127,6 +131,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
                 value={form.fechaLimite}
                 onChange={handleChange}
                 required
+                min={hoy}
                 className="w-full py-2 bg-transparent outline-none text-gray-700"
               />
             </div>
@@ -144,6 +149,7 @@ export default function ModalCrearPremio({ onClose, onGuardar, premio }) {
                 value={form.img}
                 onChange={handleChange}
                 required
+                placeholder="https://ejemplo.com/imagen.jpg"
                 className="w-full py-2 bg-transparent outline-none text-gray-700"
               />
             </div>

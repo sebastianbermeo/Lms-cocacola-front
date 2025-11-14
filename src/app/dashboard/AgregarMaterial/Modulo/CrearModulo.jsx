@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Save, RotateCcw } from 'lucide-react'
+import { Plus, Save, RotateCcw, Layers } from 'lucide-react'
 
 export default function CrearModulo({ cursos = [], onGuardar, onEdit, onDelete, moduloEditando, onCancelarEdicion }) {
   const [form, setForm] = useState({ titulo: '', descripcion: '', imagen: '', cursoId: '' })
@@ -23,13 +23,21 @@ export default function CrearModulo({ cursos = [], onGuardar, onEdit, onDelete, 
     }
   }, [moduloEditando])
 
+  const limpiarFormulario = () => {
+    setForm({ titulo: '', descripcion: '', imagen: '', cursoId: '' })
+    setEditando(false)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
+
     if (editando) {
       onGuardar({ ...form, id: moduloEditando.id })
     } else {
       onGuardar(form)
     }
+
+    limpiarFormulario()
   }
 
   return (
@@ -39,7 +47,10 @@ export default function CrearModulo({ cursos = [], onGuardar, onEdit, onDelete, 
       </h2>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
-        <h3 className="text-lg font-semibold text-[#F40009] mb-4">🧩 Datos del módulo</h3>
+        <h3 className="text-lg font-semibold text-[#F40009] mb-4 flex items-center gap-2">
+          <Layers size={22} className="text-[#F40009]" />
+          Datos del módulo
+        </h3>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -109,12 +120,16 @@ export default function CrearModulo({ cursos = [], onGuardar, onEdit, onDelete, 
             {editando && (
               <button
                 type="button"
-                onClick={onCancelarEdicion}
+                onClick={() => {
+                  limpiarFormulario()
+                  onCancelarEdicion()
+                }}
                 className="flex items-center border border-gray-300 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-100 transition-all"
               >
                 <RotateCcw size={18} className="mr-2" /> Cancelar
               </button>
             )}
+
             <button
               type="submit"
               className="flex items-center bg-[#F40009] text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-all"

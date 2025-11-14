@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Eye, Pencil, Trash2, Star } from 'lucide-react'
+import { Eye, Pencil, Trash2, Coins } from 'lucide-react'
 import ModalEliminar from '../ModalEliminar'
 import DetallesQuiz from './DetallesQuiz'
 
@@ -17,23 +17,14 @@ export default function TablaQuiz({ quizzes = [], onEdit, onDelete }) {
         <table className="min-w-full border-collapse">
           <thead className="bg-[#F40009] text-white">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wide">
-                Lección
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">
-                Preguntas
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">
-                Mínimo para aprobar
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">
-                Puntos
-              </th>
-              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">
-                Acciones
-              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wide">Lección</th>
+              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">Preguntas</th>
+              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">Mínimo para aprobar</th>
+              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">Puntos</th>
+              <th className="px-6 py-3 text-center text-sm font-semibold uppercase tracking-wide">Acciones</th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-gray-100">
             <AnimatePresence>
               {lista.length > 0 ? (
@@ -49,6 +40,7 @@ export default function TablaQuiz({ quizzes = [], onEdit, onDelete }) {
                     <td className="px-6 py-4 text-gray-800 font-medium whitespace-nowrap">
                       {quiz.leccion?.titulo || '—'}
                     </td>
+
                     <td className="px-6 py-4 text-center text-gray-700">
                       {Array.isArray(quiz.preguntas)
                         ? quiz.preguntas.length
@@ -56,15 +48,18 @@ export default function TablaQuiz({ quizzes = [], onEdit, onDelete }) {
                         ? 1
                         : 0}
                     </td>
+
                     <td className="px-6 py-4 text-center text-gray-700">
                       {quiz.minCorrectas}
                     </td>
+
                     <td className="px-6 py-4 text-center text-gray-700 font-semibold">
                       <div className="flex items-center justify-center gap-1">
-                        <Star size={16} className="text-yellow-500" />
+                        <Coins size={16} className="text-[#F40009]" />
                         {quiz.puntos ?? 0}
                       </div>
                     </td>
+
                     <td className="px-6 py-4 text-center">
                       <div className="flex justify-center gap-3">
                         <button
@@ -76,12 +71,14 @@ export default function TablaQuiz({ quizzes = [], onEdit, onDelete }) {
                         >
                           <Eye size={18} />
                         </button>
+
                         <button
                           onClick={() => onEdit && onEdit(quiz)}
                           className="p-2 rounded-full hover:bg-gray-100 text-[#F40009]"
                         >
                           <Pencil size={18} />
                         </button>
+
                         <button
                           onClick={() => {
                             setQuizSeleccionado(quiz)
@@ -97,10 +94,7 @@ export default function TablaQuiz({ quizzes = [], onEdit, onDelete }) {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="5"
-                    className="text-center py-10 text-gray-500 italic text-sm"
-                  >
+                  <td colSpan="5" className="text-center py-10 text-gray-500 italic text-sm">
                     No hay evaluaciones creadas.
                   </td>
                 </tr>

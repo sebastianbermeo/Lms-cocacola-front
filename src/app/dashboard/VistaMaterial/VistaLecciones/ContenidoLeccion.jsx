@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, FileText, CheckCircle, ClipboardList, AlertCircle } from 'lucide-react'
+import { ArrowLeft, FileText, CheckCircle, ClipboardList, AlertCircle, Coins } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { useQuiz } from '@/app/hooks/AgregarMaterial/Quiz/useQuiz'
 
@@ -40,7 +40,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
           setResultado({
             aprobado: data.aprobado,
             correctas: data.correctas,
-            total: quiz.preguntas.length,
+            total: quiz.preguntas.length
           })
         }
       }
@@ -54,18 +54,41 @@ export default function ContenidoLeccion({ leccion, onBack }) {
 
   const handleEnviarQuiz = async () => {
     if (!quiz || !userId) return
+
     const respuestasArray = Object.entries(respuestas).map(([preguntaId, opcionIndex]) => {
       const opcionId = quiz.preguntas.find((p) => p.id === Number(preguntaId))?.opciones[opcionIndex]?.id
       return { preguntaId: Number(preguntaId), opcionId }
     })
+
     const data = await enviarRespuestasQuiz(quiz.id, userId, respuestasArray)
+
     if (data?.aprobado) {
-      setResultado({ aprobado: true, correctas: data.correctas, total: quiz.preguntas.length })
+      setResultado({
+        aprobado: true,
+        correctas: data.correctas,
+        total: quiz.preguntas.length
+      })
+
       setMostrarQuiz(false)
+
       toast.success(`Aprobaste y ganaste ${quiz.puntos} puntos.`)
+
+      const updatedUser = {
+        ...user,
+        points: user.points + quiz.puntos
+      }
+
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      window.dispatchEvent(new Event('userUpdated'))
+
     } else if (data) {
-      setResultado({ aprobado: false, correctas: data.correctas, total: quiz.preguntas.length })
-      toast.info(`Obtuviste ${data.correctas ?? 0} respuestas correctas. Intenta nuevamente.`)
+      setResultado({
+        aprobado: false,
+        correctas: data.correctas,
+        total: quiz.preguntas.length
+      })
+
+      toast.error('No aprobaste. Intenta nuevamente.')
     }
   }
 
@@ -78,6 +101,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
 
   return (
     <div className="min-h-screen bg-white p-10 space-y-10">
+
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -96,19 +120,22 @@ export default function ContenidoLeccion({ leccion, onBack }) {
       >
         <h1 className="text-3xl font-bold mb-2">{leccion.titulo}</h1>
         <p className="text-white/80 text-lg">{leccion.descripcion}</p>
-        <p className="mt-2 font-semibold">
-          💎 Puntos: {quiz ? quiz.puntos : leccion.puntos}
-        </p>
+
+        <div className="mt-4 inline-flex items-center bg-white text-[#F40009] px-4 py-2 rounded-full shadow-md font-semibold">
+          <Coins size={20} className="text-[#F40009] mr-2" />
+          {quiz ? quiz.puntos : leccion.puntos} puntos
+        </div>
       </motion.div>
 
       {!mostrarQuiz && (
         <div className="space-y-10">
+
           {leccion.videoUrl && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="rounded-xl overflow-hidden shadow-md border border-gray-200"
+              className="rounded-2xl overflow-hidden shadow-lg border border-gray-200"
             >
               <iframe
                 className="w-full aspect-video"
@@ -125,7 +152,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="bg-red-50 border border-[#F40009]/20 rounded-xl p-6 shadow-sm"
+              className="bg-red-50 border border-[#F40009]/20 rounded-2xl p-6 shadow-md"
             >
               <h3 className="text-lg font-semibold text-[#F40009] mb-3 flex items-center">
                 <FileText className="mr-2" size={22} /> Archivos disponibles
@@ -152,7 +179,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8 }}
-              className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
+              className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md"
             >
               <h4 className="text-lg font-semibold text-[#F40009] mb-4">Contenido de la lección</h4>
               <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
@@ -161,28 +188,30 @@ export default function ContenidoLeccion({ leccion, onBack }) {
             </motion.div>
           )}
 
-          {quiz && (
+          {resultado && (
             <div className="flex justify-center">
-              {resultado ? (
-                resultado.aprobado ? (
-                  <div className="text-green-600 font-semibold text-lg flex justify-center items-center gap-2">
-                    <CheckCircle size={22} /> Aprobado ({resultado.correctas}/{resultado.total})
-                  </div>
-                ) : (
-                  <div className="text-[#F40009] font-semibold text-lg flex justify-center items-center gap-2">
-                    <AlertCircle size={22} /> No aprobado ({resultado.correctas}/{resultado.total})
-                  </div>
-                )
+              {resultado.aprobado ? (
+                <div className="text-green-600 font-semibold text-lg flex items-center gap-2">
+                  <CheckCircle size={22} /> Aprobado ({resultado.correctas}/{resultado.total})
+                </div>
               ) : (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setMostrarQuiz(true)}
-                  className="bg-[#F40009] text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-red-700 transition-all"
-                >
-                  <ClipboardList size={20} className="inline mr-2" /> Iniciar evaluación
-                </motion.button>
+                <div className="text-[#F40009] font-semibold text-lg flex items-center gap-2">
+                  <AlertCircle size={22} /> No aprobado ({resultado.correctas}/{resultado.total})
+                </div>
               )}
+            </div>
+          )}
+
+          {quiz && !resultado && (
+            <div className="flex justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setMostrarQuiz(true)}
+                className="bg-[#F40009] text-white px-6 py-3 rounded-full font-semibold shadow-md hover:bg-red-700 transition-all"
+              >
+                <ClipboardList size={20} className="inline mr-2" /> Iniciar evaluación
+              </motion.button>
             </div>
           )}
 
@@ -199,27 +228,27 @@ export default function ContenidoLeccion({ leccion, onBack }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white border border-gray-200 rounded-xl p-8 shadow-lg space-y-8"
+          className="bg-white border border-gray-200 rounded-2xl p-8 shadow-xl space-y-8"
         >
-          <h2 className="text-2xl font-bold text-[#F40009] mb-6 text-center">
-            🧠 Evaluación de {leccion.titulo}
+          <h2 className="text-2xl font-bold text-[#F40009] text-center">
+            Evaluación de {leccion.titulo}
           </h2>
 
           {quiz.preguntas.map((p, i) => (
-            <div key={p.id} className="border-b border-gray-200 pb-6 mb-6">
-              <h3 className="font-semibold text-gray-800 mb-3">
+            <div key={p.id} className="border-b border-gray-200 pb-6">
+              <h3 className="font-semibold text-gray-800 mb-3 text-lg">
                 {i + 1}. {p.texto}
               </h3>
+
               <ul className="space-y-2">
                 {p.opciones.map((o, j) => (
                   <li key={j}>
-                    <label className="flex items-center space-x-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
                         name={`pregunta-${p.id}`}
                         checked={respuestas[p.id] === j}
                         onChange={() => handleResponder(p.id, j)}
-                        className="text-[#F40009]"
                       />
                       <span className="text-gray-700">
                         {typeof o === 'string' ? o : o.texto}
@@ -241,6 +270,7 @@ export default function ContenidoLeccion({ leccion, onBack }) {
               Enviar respuestas
             </motion.button>
           </div>
+
         </motion.div>
       )}
     </div>
