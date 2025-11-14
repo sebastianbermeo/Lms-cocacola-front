@@ -18,8 +18,27 @@ export default function Header({ activeView, onNavigate }) {
     const parsed = stored ? JSON.parse(stored) : null
     if (!parsed?.id) return
     const updated = await getUserData(parsed.id)
-    if (updated) setUsuarioActivo(updated)
+    if (updated) {
+      localStorage.setItem('user', JSON.stringify(updated))
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('userUpdated'))
+      }
+      setUsuarioActivo(updated)
+    }
   }, [getUserData])
+
+  useEffect(() => {
+    const sync = () => {
+      const stored = localStorage.getItem('user')
+      if (stored) setUsuarioActivo(JSON.parse(stored))
+    }
+    window.addEventListener('storage', sync)
+    window.addEventListener('userUpdated', sync)
+    return () => {
+      window.removeEventListener('storage', sync)
+      window.removeEventListener('userUpdated', sync)
+    }
+  }, [])
 
   useEffect(() => {
     refrescarUsuario()
@@ -30,12 +49,12 @@ export default function Header({ activeView, onNavigate }) {
   const baseMenu = [
     { label: 'Inicio', value: 'inicio' },
     { label: 'Cursos', value: 'cursos' },
-    { label: 'Premios', value: 'premios' },
+    { label: 'Premios', value: 'premios' }
   ]
 
   const adminMenu = [
     { label: 'Usuarios', value: 'usuarios' },
-    { label: 'Agregar Material', value: 'agregar' },
+    { label: 'Agregar Material', value: 'agregar' }
   ]
 
   const menuItems =

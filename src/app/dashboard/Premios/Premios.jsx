@@ -1,143 +1,473 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
-import { Gift, Coins } from 'lucide-react'
+import { Coins, Plus, Trash2, Gift, Pencil } from 'lucide-react'
+import { toast } from 'react-toastify'
+import { usePremios } from '@/app/hooks/Premios/usePremios'
 import { useLogin } from '@/app/hooks/auth/useLogin'
+import ModalEliminar from './ModalEliminar'
+import ModalCrearPremio from './ModalCrearPremio'
 
 export default function Premios() {
   const [vista, setVista] = useState('disponibles')
-  const [canjeados, setCanjeados] = useState([])
-  const [usuarioActivo, setUsuarioActivo] = useState(null)
-  const { getUserData } = useLogin()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [usuario, setUsuario] = useState(null)
+  const [premioEditando, setPremioEditando] = useState(null)
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    type: null,
+    premio: null
+  })
 
-  // 🔹 Cargar usuario y mantener actualizado
-  const cargarUsuario = useCallback(async () => {
-    const stored = localStorage.getItem('user')
-    const parsed = stored ? JSON.parse(stored) : null
-    if (!parsed?.id) return
-    const updated = await getUserData(parsed.id)
-    if (updated) setUsuarioActivo(updated)
-  }, [getUserData])
+  const { getUserData } = useLogin()
+  const {
+    premios,
+    canjeados,
+    canjesGlobales,
+    obtenerPremios,
+    obtenerCanjeados,
+    obtenerCanjesGlobales,
+    canjearPremio,
+    crearPremio,
+    actualizarPremio,
+    eliminarPremio
+  } = usePremios()
+
+  const cargarUsuario = async () => {
+    const stored =
+      typeof window !== 'undefined' ? localStorage.getItem('user') : null
+    const obj = stored ? JSON.parse(stored) : null
+    if (!obj?.id) return
+    const data = await getUserData(obj.id)
+    if (data) setUsuario(data)
+  }
 
   useEffect(() => {
     cargarUsuario()
-    const interval = setInterval(cargarUsuario, 30000)
-    return () => clearInterval(interval)
-  }, [cargarUsuario])
+  }, [])
 
-  const premios = [
-    { id: 1, nombre: 'Coca-Cola 3L', puntos: 800, imagen: '/Img/premios/cocacola3l.png' },
-    { id: 2, nombre: 'Mochila Coca-Cola', puntos: 1200, imagen: '/Img/premios/mochila.png' },
-    { id: 3, nombre: 'Gorra edición especial', puntos: 600, imagen: '/Img/premios/gorra.png' },
-    { id: 4, nombre: 'Botella metálica Coca-Cola', puntos: 1000, imagen: '/Img/premios/botella.png' },
-  ]
+  useEffect(() => {
+    if (usuario?.id) {
+      obtenerPremios()
+      obtenerCanjeados(usuario.id)
+      if (usuario.role === 'admin') obtenerCanjesGlobales()
+    }
+  }, [usuario])
 
-  const canjearPremio = (premio) => {
-    if ((usuarioActivo?.points ?? 0) < premio.puntos) {
-      alert('No tienes suficientes puntos para canjear este premio.')
+  const handleCanjear = async (premio) => {
+    if (!usuario?.id) return
+
+    const yaCanjeado = canjeados.some((c) => c.premioId === premio.id)
+    if (yaCanjeado) {
+      toast.warn('Ya has canjeado este premio y no puedes volver a canjearlo.')
       return
     }
 
-    const nuevosPuntos = usuarioActivo.points - premio.puntos
-    setUsuarioActivo({ ...usuarioActivo, points: nuevosPuntos })
-    setCanjeados([...canjeados, premio])
-    alert(`Has canjeado ${premio.nombre} 🎉`)
+    const res = await canjearPremio(usuario.id, premio.id)
+
+    if (res && res.id) {
+      toast.success('Premio canjeado con éxito')
+      await Promise.all([
+        obtenerPremios(),
+        obtenerCanjeados(usuario.id),
+        usuario.role === 'admin' ? obtenerCanjesGlobales() : Promise.resolve(),
+        cargarUsuario()
+      ])
+    } else {
+      toast.error('Hubo un error al canjear el premio.')
+    }
   }
 
-  const renderPremios = (lista, canjear = true) => (
-    <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-10 mt-10">
-      {lista.map((premio, index) => (
-        <motion.div
-          key={premio.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          whileHover={{ scale: 1.03 }}
-          className="bg-white rounded-3xl shadow-xl border border-[#F40009]/10 hover:border-[#F40009]/40 transition-all duration-500 flex flex-col justify-between items-center p-6 relative"
-        >
-          <Image
-            src={premio.imagen}
-            alt={premio.nombre}
-            width={150}
-            height={150}
-            className="object-contain mb-4"
-          />
-          <h3 className="text-lg font-bold text-gray-800">{premio.nombre}</h3>
-          <p className="text-[#F40009] font-semibold mt-2 flex items-center">
-            <Coins size={18} className="mr-1 text-yellow-500" /> {premio.puntos} puntos
-          </p>
+  const handleEliminar = async (premio) => {
+    try {
+      await eliminarPremio(premio.id)
+      toast.success('Premio eliminado correctamente')
+      obtenerPremios()
+      if (usuario?.role === 'admin') obtenerCanjesGlobales()
+    } catch {
+      toast.error('No se pudo eliminar el premio.')
+    }
+  }
 
-          {canjear && (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => canjearPremio(premio)}
-              className="mt-4 px-6 py-2 bg-[#F40009] text-white rounded-full text-sm shadow-md hover:bg-red-700 transition-all"
-            >
-              Canjear
-            </motion.button>
-          )}
-        </motion.div>
-      ))}
+  const formatFecha = (fecha) => {
+    if (!fecha) return '-'
+    const d = new Date(fecha)
+    return d.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    })
+  }
 
-      {lista.length === 0 && (
-        <div className="col-span-full text-center py-20 bg-red-50 rounded-2xl mt-10">
+  const formatFechaHora = (fecha) => {
+    if (!fecha) return '-'
+    const d = new Date(fecha)
+    return d.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const renderPremios = (listaRaw, permitirCanje) => {
+    const lista = Array.isArray(listaRaw) ? listaRaw : []
+
+    return (
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-8 mt-8">
+        {lista.map((premio) => (
+          <motion.div
+            key={premio.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4, boxShadow: '0 18px 40px rgba(0,0,0,0.12)' }}
+            className="bg-white rounded-2xl shadow-md border border-red-100 p-6 flex flex-col justify-between"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center mb-4 overflow-hidden">
+                <img
+                  src={premio.img}
+                  alt={premio.nombre}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">
+                {premio.nombre}
+              </h3>
+              <p className="text-sm text-gray-500 mb-3">ID: {premio.id}</p>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Coins size={18} className="text-yellow-500" />
+                <span className="text-[#F40009] font-semibold">
+                  {premio.puntos} puntos
+                </span>
+              </div>
+              <div className="mt-2 w-full space-y-1 text-sm text-gray-700">
+                <p className="flex justify-between">
+                  <span className="text-gray-500">Cantidad disponible:</span>
+                  <span className="font-semibold">{premio.cantidad}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-gray-500">Fecha límite:</span>
+                  <span className="font-semibold">
+                    {formatFecha(premio.fechaLimite)}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between gap-3">
+              {usuario?.role === 'admin' && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setPremioEditando(premio)
+                      setModalOpen(true)
+                    }}
+                    className="px-3 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center gap-1 text-sm"
+                  >
+                    <Pencil size={16} />
+                    Editar
+                  </button>
+                  <button
+                    onClick={() =>
+                      setConfirmState({
+                        open: true,
+                        type: 'eliminar',
+                        premio
+                      })
+                    }
+                    className="px-3 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 flex items-center gap-1 text-sm"
+                  >
+                    <Trash2 size={16} />
+                    Eliminar
+                  </button>
+                </div>
+              )}
+
+              {permitirCanje && (
+                <motion.button
+                  onClick={() =>
+                    setConfirmState({
+                      open: true,
+                      type: 'canjear',
+                      premio
+                    })
+                  }
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="ml-auto px-5 py-2 rounded-full bg-[#F40009] text-white text-sm font-semibold shadow hover:bg-red-700"
+                >
+                  Canjear
+                </motion.button>
+              )}
+            </div>
+          </motion.div>
+        ))}
+
+        {lista.length === 0 && (
+          <div className="col-span-full text-center py-16 bg-red-50 rounded-2xl mt-4">
+            <p className="text-[#F40009] text-lg font-medium">
+              {permitirCanje
+                ? 'No hay premios disponibles.'
+                : 'No tienes premios canjeados.'}
+            </p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const renderMisCanjes = () => {
+    const lista = Array.isArray(canjeados) ? canjeados : []
+
+    if (lista.length === 0) {
+      return (
+        <div className="mt-8 col-span-full text-center py-16 bg-red-50 rounded-2xl">
           <p className="text-[#F40009] text-lg font-medium">
-            {canjear ? 'No hay premios disponibles.' : 'Aún no has canjeado ningún premio.'}
+            No tienes premios canjeados.
           </p>
         </div>
-      )}
-    </div>
-  )
+      )
+    }
+
+    return (
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-8 mt-8">
+        {lista.map((c) => (
+          <motion.div
+            key={c.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4, boxShadow: '0 18px 40px rgba(0,0,0,0.12)' }}
+            className="bg-white rounded-2xl shadow-md border border-red-100 p-6 flex flex-col justify-between"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-32 h-32 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center mb-4 overflow-hidden">
+                <img
+                  src={c.premio?.img}
+                  alt={c.premio?.nombre}
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">
+                {c.premio?.nombre}
+              </h3>
+              <div className="mt-2 w-full space-y-2 text-sm text-gray-700">
+                <p className="flex justify-between">
+                  <span className="text-gray-500">Puntos utilizados:</span>
+                  <span className="font-semibold text-[#F40009]">
+                    {c.premio?.puntos} puntos
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="text-gray-500">Fecha de canje:</span>
+                  <span className="font-semibold">
+                    {formatFechaHora(c.fechaCanje)}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderHistorialGlobal = () => {
+    const lista = Array.isArray(canjesGlobales) ? canjesGlobales : []
+
+    return (
+      <div className="mt-8 overflow-x-auto bg-white border border-gray-200 rounded-2xl shadow">
+        <table className="min-w-full text-sm text-gray-700">
+          <thead className="bg-[#F40009] text-white">
+            <tr>
+              <th className="px-4 py-3 text-left">Usuario</th>
+              <th className="px-4 py-3 text-left">Imagen</th>
+              <th className="px-4 py-3 text-left">Premio</th>
+              <th className="px-4 py-3 text-left">Puntos</th>
+              <th className="px-4 py-3 text-left">Fecha de canje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lista.length > 0 ? (
+              lista.map((c, i) => (
+                <tr
+                  key={c.id}
+                  className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                >
+                  <td className="px-4 py-3">{c.user?.name || 'Usuario'}</td>
+                  <td className="px-4 py-3">
+                    <div className="w-12 h-12 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                      {c.premio?.img && (
+                        <img
+                          src={c.premio.img}
+                          alt={c.premio?.nombre}
+                          className="w-full h-full object-contain"
+                        />
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.premio?.nombre || 'Premio'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {c.premio?.puntos ?? '-'}
+                  </td>
+                  <td className="px-4 py-3">
+                    {formatFechaHora(c.fechaCanje)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-4 py-6 text-center text-gray-500 italic"
+                >
+                  Aún no hay canjes registrados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  const listaCanjeados = Array.isArray(canjeados)
+    ? canjeados.map((c) => c?.premio).filter(Boolean)
+    : []
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-[#fff5f5] p-10">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-10"
+        className="text-center mb-8"
       >
-        <h1 className="text-4xl font-bold text-[#F40009] mb-3">Mis Premios</h1>
-        <p className="text-gray-600 text-lg">
-          Canjea tus puntos por productos exclusivos de Coca-Cola.
-        </p>
+        <h1 className="text-4xl font-bold text-[#F40009] flex justify-center items-center gap-3">
+          Premios <Gift size={32} className="text-[#F40009]" />
+        </h1>
 
-        <div className="mt-5 flex justify-center items-center gap-2">
-          <Coins size={22} className="text-yellow-500" />
-          <p className="text-gray-700 text-lg font-medium">
-            Tus puntos: <span className="text-[#F40009] font-bold">{usuarioActivo?.points ?? 0}</span>
+        {usuario && (
+          <p className="text-gray-700 mt-2 flex justify-center items-center gap-2">
+            Tus puntos:
+            <span className="text-[#F40009] font-bold">
+              {usuario.points}
+            </span>
+            <Coins size={20} className="text-yellow-500" />
           </p>
-        </div>
+        )}
       </motion.div>
 
-      <div className="flex justify-center space-x-6 mb-6">
+      {usuario?.role === 'admin' && (
+        <div className="flex justify-center mb-6">
+          <button
+            onClick={() => {
+              setPremioEditando(null)
+              setModalOpen(true)
+            }}
+            className="flex items-center gap-2 bg-[#F40009] text-white px-6 py-2 rounded-full shadow hover:bg-red-700 transition"
+          >
+            <Plus size={18} /> Crear premio
+          </button>
+        </div>
+      )}
+
+      <div className="flex justify-center space-x-4 mb-6">
         <button
           onClick={() => setVista('disponibles')}
-          className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+          className={`px-6 py-2 rounded-full text-sm font-semibold ${
             vista === 'disponibles'
-              ? 'bg-[#F40009] text-white shadow-md'
-              : 'border border-[#F40009] text-[#F40009] hover:bg-red-50'
+              ? 'bg-[#F40009] text-white'
+              : 'border border-[#F40009] text-[#F40009]'
           }`}
         >
-          🏆 Premios disponibles
+          Premios disponibles
         </button>
+
         <button
-          onClick={() => setVista('canjeados')}
-          className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-            vista === 'canjeados'
-              ? 'bg-[#F40009] text-white shadow-md'
-              : 'border border-[#F40009] text-[#F40009] hover:bg-red-50'
+          onClick={() => setVista('misCanjes')}
+          className={`px-6 py-2 rounded-full text-sm font-semibold ${
+            vista === 'misCanjes'
+              ? 'bg-[#F40009] text-white'
+              : 'border border-[#F40009] text-[#F40009]'
           }`}
         >
-          🎁 Premios canjeados
+          Mis canjes
         </button>
+
+        {usuario?.role === 'admin' && (
+          <button
+            onClick={() => setVista('historialGlobal')}
+            className={`px-6 py-2 rounded-full text-sm font-semibold ${
+              vista === 'historialGlobal'
+                ? 'bg-[#F40009] text-white'
+                : 'border border-[#F40009] text-[#F40009]'
+            }`}
+          >
+            Historial global
+          </button>
+        )}
       </div>
 
-      {vista === 'disponibles'
-        ? renderPremios(premios)
-        : renderPremios(canjeados, false)}
+      {vista === 'disponibles' &&
+        renderPremios(
+          premios.filter((p) => !canjeados.some((c) => c.premioId === p.id)),
+          true
+        )}
+
+      {vista === 'misCanjes' && renderMisCanjes()}
+
+      {vista === 'historialGlobal' &&
+        usuario?.role === 'admin' &&
+        renderHistorialGlobal()}
+
+      {modalOpen && (
+        <ModalCrearPremio
+          onClose={() => setModalOpen(false)}
+          premio={premioEditando}
+          onGuardar={async (data) => {
+            if (data.id) {
+              await actualizarPremio(data.id, data)
+            } else {
+              await crearPremio(data)
+            }
+            setModalOpen(false)
+            obtenerPremios()
+            if (usuario?.role === 'admin') obtenerCanjesGlobales()
+          }}
+        />
+      )}
+
+      {confirmState.open && confirmState.premio && (
+        <ModalEliminar
+          open={confirmState.open}
+          onClose={() =>
+            setConfirmState({ open: false, type: null, premio: null })
+          }
+          onConfirm={async () => {
+            if (confirmState.type === 'canjear') {
+              await handleCanjear(confirmState.premio)
+            } else if (confirmState.type === 'eliminar') {
+              await handleEliminar(confirmState.premio)
+            }
+          }}
+          title={
+            confirmState.type === 'canjear'
+              ? '¿Canjear este premio?'
+              : '¿Eliminar este premio?'
+          }
+          message={
+            confirmState.type === 'canjear'
+              ? `Vas a canjear el premio "${confirmState.premio.nombre}". Se descontarán ${confirmState.premio.puntos} puntos de tu saldo.`
+              : `Vas a eliminar el premio "${confirmState.premio.nombre}". Esta acción no se puede deshacer.`
+          }
+          confirmLabel={confirmState.type === 'canjear' ? 'Canjear' : 'Eliminar'}
+          cancelLabel="Cancelar"
+          variant={confirmState.type === 'canjear' ? 'confirm' : 'danger'}
+        />
+      )}
     </div>
   )
 }

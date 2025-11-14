@@ -11,7 +11,7 @@ export function useLogin() {
       const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       })
 
       if (!res.ok) {
@@ -30,11 +30,14 @@ export function useLogin() {
         role: data.user.role,
         foto: data.user.imageUrl || '',
         points: data.user.points ?? 0,
-        activo: data.user.activo,
+        activo: data.user.activo
       }
 
       localStorage.setItem('token', data.access_token)
       localStorage.setItem('user', JSON.stringify(userData))
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('userUpdated'))
+      }
       toast.success('Inicio de sesión exitoso')
       return data
     } catch (err) {
@@ -45,42 +48,47 @@ export function useLogin() {
     }
   }
 
-  const getUserData = useCallback(async (userId) => {
-    try {
-      const token = localStorage.getItem('token')
-      if (!token || !userId) return null
+  const getUserData = useCallback(
+    async (userId) => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token || !userId) return null
 
-      const res = await fetch(`${API_URL}/users/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+        const res = await fetch(`${API_URL}/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
 
-      if (!res.ok) throw new Error('Error al obtener datos del usuario')
+        if (!res.ok) throw new Error('Error al obtener datos del usuario')
 
-      const data = await res.json()
+        const data = await res.json()
 
-      const updatedUser = {
-        id: data.id,
-        name: data.name,
-        role: data.role?.name || data.role,
-        foto: data.imageUrl || '',
-        points: data.points ?? 0,
-        activo: data.activo,
+        const updatedUser = {
+          id: data.id,
+          name: data.name,
+          role: data.role?.name || data.role,
+          foto: data.imageUrl || '',
+          points: data.points ?? 0,
+          activo: data.activo
+        }
+
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('userUpdated'))
+        }
+        return updatedUser
+      } catch {
+        return null
       }
-
-      localStorage.setItem('user', JSON.stringify(updatedUser))
-      return updatedUser
-    } catch (error) {
-      console.error('Error al actualizar usuario:', error)
-      return null
-    }
-  }, [API_URL])
+    },
+    [API_URL]
+  )
 
   const logout = async () => {
     try {
       const token = localStorage.getItem('token')
       await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       })
     } catch {
     } finally {
