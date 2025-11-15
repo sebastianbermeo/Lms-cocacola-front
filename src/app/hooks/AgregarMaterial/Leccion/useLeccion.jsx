@@ -51,18 +51,22 @@ export function useLeccion() {
 
   const crearLeccion = async (nuevaLeccion) => {
     try {
+      const formData = new FormData()
+      Object.keys(nuevaLeccion).forEach((key) => {
+        if (key !== 'archivos') {
+          formData.append(key, nuevaLeccion[key])
+        }
+      })
+      nuevaLeccion.archivos.forEach((file) => {
+        formData.append('archivos', file)
+      })
+
       const res = await fetch(`${API_URL}/leccion`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(nuevaLeccion),
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       })
-      if (!res.ok) {
-        const e = await res.json().catch(() => null)
-        throw new Error(e?.message || 'Error al crear lección')
-      }
+      if (!res.ok) throw new Error('Error al crear lección')
       toast.success('Lección creada correctamente')
       await obtenerLecciones()
     } catch (err) {
@@ -80,10 +84,7 @@ export function useLeccion() {
         },
         body: JSON.stringify(data),
       })
-      if (!res.ok) {
-        const e = await res.json().catch(() => null)
-        throw new Error(e?.message || 'Error al actualizar lección')
-      }
+      if (!res.ok) throw new Error('Error al actualizar lección')
       toast.success('Lección actualizada correctamente')
       await obtenerLecciones()
     } catch (err) {
@@ -97,10 +98,7 @@ export function useLeccion() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
-      if (!res.ok) {
-        const e = await res.json().catch(() => null)
-        throw new Error(e?.message || 'Error al eliminar lección')
-      }
+      if (!res.ok) throw new Error('Error al eliminar lección')
       toast.success('Lección eliminada correctamente')
       await obtenerLecciones()
     } catch (err) {
