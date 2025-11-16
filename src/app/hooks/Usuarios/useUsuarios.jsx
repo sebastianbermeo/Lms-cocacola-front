@@ -29,7 +29,7 @@ export function useUsuarios() {
           name: nuevoUsuario.displayName,
           email: nuevoUsuario.email,
           password: nuevoUsuario.password,
-          roleId: nuevoUsuario.rolId,
+          roleId: Number(nuevoUsuario.rolId),
           imageUrl: nuevoUsuario.foto || '',
         }),
       })
@@ -54,7 +54,7 @@ export function useUsuarios() {
         body: JSON.stringify({
           name: usuario.displayName,
           email: usuario.email,
-          roleId: usuario.rolId,
+          roleId: Number(usuario.rolId),
           imageUrl: usuario.foto || '',
         }),
       })
