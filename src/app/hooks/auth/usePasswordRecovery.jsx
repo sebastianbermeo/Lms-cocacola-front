@@ -8,13 +8,26 @@ export default function usePasswordRecovery() {
   const sendCode = async (email) => {
     setLoading(true)
     try {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
+
       const res = await fetch(`${API_URL}/users/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
+        signal: controller.signal
+      }).catch(err => {
+        throw new Error("No se pudo conectar con el servidor")
       })
 
-      const data = await res.json().catch(() => null)
+      clearTimeout(timeout)
+
+      let data = null
+      try {
+        data = await res.json()
+      } catch {
+        throw new Error("Respuesta inválida del servidor")
+      }
 
       if (!res.ok) {
         throw new Error(data?.message || 'Error al enviar código')
@@ -22,8 +35,9 @@ export default function usePasswordRecovery() {
 
       toast.success('Código enviado a tu correo')
       return true
+
     } catch (err) {
-      toast.error(err.message || 'Error al enviar código')
+      toast.error(err.message)
       return false
     } finally {
       setLoading(false)
@@ -36,19 +50,17 @@ export default function usePasswordRecovery() {
       const res = await fetch(`${API_URL}/users/verify-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email, code })
       })
 
-      const data = await res.json().catch(() => null)
+      const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data?.message || 'Código incorrecto')
-      }
+      if (!res.ok) throw new Error(data.message || 'Código incorrecto')
 
       toast.success('Código verificado')
       return true
     } catch (err) {
-      toast.error(err.message || 'Error al verificar código')
+      toast.error(err.message)
       return false
     } finally {
       setLoading(false)
@@ -61,19 +73,17 @@ export default function usePasswordRecovery() {
       const res = await fetch(`${API_URL}/users/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, newPassword, confirmPassword }),
+        body: JSON.stringify({ email, code, newPassword, confirmPassword })
       })
 
-      const data = await res.json().catch(() => null)
+      const data = await res.json()
 
-      if (!res.ok) {
-        throw new Error(data?.message || 'Error al cambiar contraseña')
-      }
+      if (!res.ok) throw new Error(data.message || 'Error al cambiar contraseña')
 
       toast.success('Contraseña actualizada correctamente')
       return true
     } catch (err) {
-      toast.error(err.message || 'Error al cambiar contraseña')
+      toast.error(err.message)
       return false
     } finally {
       setLoading(false)
