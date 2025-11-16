@@ -17,10 +17,10 @@ import { useQuiz } from '@/app/hooks/AgregarMaterial/Quiz/useQuiz'
 
 export default function AgregarMaterial() {
   const [activeTab, setActiveTab] = useState('curso')
-  const { cursos, crearCurso, editarCurso, eliminarCurso } = useCurso()
-  const { modulos, crearModulo, editarModulo, eliminarModulo } = useModulo()
-  const { lecciones, crearLeccion, editarLeccion, eliminarLeccion, obtenerLecciones } = useLeccion()
-  const { quizzes, crearQuiz, editarQuiz, eliminarQuiz, obtenerQuizzes } = useQuiz()
+  const { cursos, obtenerCursos, crearCurso, editarCurso, eliminarCurso } = useCurso()
+  const { modulos, obtenerModulos, crearModulo, editarModulo, eliminarModulo } = useModulo()
+  const { lecciones, obtenerLecciones, crearLeccion, editarLeccion, eliminarLeccion } = useLeccion()
+  const { quizzes, obtenerQuizzes, crearQuiz, editarQuiz, eliminarQuiz } = useQuiz()
   const [cursoEditando, setCursoEditando] = useState(null)
   const [moduloEditando, setModuloEditando] = useState(null)
   const [leccionEditando, setLeccionEditando] = useState(null)
@@ -85,11 +85,10 @@ export default function AgregarMaterial() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center px-4 py-2 border-b-2 font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'border-[#F40009] text-[#F40009]'
-                : 'border-transparent text-gray-500 hover:text-[#F40009]'
-            }`}
+            className={`flex items-center px-4 py-2 border-b-2 font-medium transition-colors ${activeTab === tab.key
+              ? 'border-[#F40009] text-[#F40009]'
+              : 'border-transparent text-gray-500 hover:text-[#F40009]'
+              }`}
           >
             {tab.icon}
             <span className="ml-2">{tab.label}</span>
@@ -109,7 +108,13 @@ export default function AgregarMaterial() {
             <TablaCursos
               cursos={cursos}
               onEdit={(row) => setCursoEditando(row)}
-              onDelete={(id) => eliminarCurso(id)}
+              onDelete={async (id) => {
+                await eliminarCurso(id)
+                await obtenerCursos()
+                await obtenerModulos()
+                await obtenerLecciones()
+                await obtenerQuizzes()
+              }}
             />
           </>
         )}
@@ -125,7 +130,12 @@ export default function AgregarMaterial() {
             <TablaModulos
               modulos={modulos}
               onEdit={(row) => setModuloEditando(row)}
-              onDelete={(id) => eliminarModulo(id)}
+              onDelete={async (id) => {
+                await eliminarModulo(id)
+                await obtenerModulos()
+                await obtenerLecciones()
+                await obtenerQuizzes()
+              }}
             />
           </>
         )}
@@ -144,6 +154,7 @@ export default function AgregarMaterial() {
               onDelete={async (id) => {
                 await eliminarLeccion(id)
                 await obtenerLecciones()
+                await obtenerQuizzes()
               }}
             />
           </>
@@ -160,7 +171,10 @@ export default function AgregarMaterial() {
             <TablaQuiz
               quizzes={quizzes}
               onEdit={(row) => setQuizEditando(row)}
-              onDelete={(id) => eliminarQuiz(id)}
+              onDelete={async (id) => {
+                await eliminarQuiz(id)
+                await obtenerQuizzes()
+              }}
             />
           </>
         )}

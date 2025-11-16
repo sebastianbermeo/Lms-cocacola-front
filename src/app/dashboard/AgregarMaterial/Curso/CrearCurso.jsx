@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Save, RotateCcw, BookOpen } from 'lucide-react'
-import TablaCursos from './TablaCursos'
 
 export default function CrearCurso({ cursos = [], onGuardar, onEdit, onDelete, cursoEditando, onCancelarEdicion }) {
   const [form, setForm] = useState({ titulo: '', descripcion: '', imagen: '' })

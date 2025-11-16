@@ -84,7 +84,7 @@ export default function TablaModulos({ modulos = [], onEdit, onDelete }) {
         onClose={() => setModalOpen(false)}
         onConfirm={() => onDelete && onDelete(moduloSeleccionado?.id)}
         title={`¿Deseas eliminar el módulo "${moduloSeleccionado?.titulo}"?`}
-        message="Al eliminar este módulo, se eliminarán todas las lecciones relacionadas."
+        message="Al eliminar este módulo, se eliminarán todas las lecciones y evaluaciones relacionadas."
       />
     </div>
   )

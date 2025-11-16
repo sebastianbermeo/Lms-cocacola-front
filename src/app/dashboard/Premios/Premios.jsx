@@ -53,6 +53,10 @@ export default function Premios() {
 
   const handleCanjear = async (premio) => {
     if (!usuario?.id) return
+    if (usuario.role === 'admin') {
+      toast.error('No puedes canjear premios porque eres administrador.')
+      return
+    }
     const yaCanjeado = canjeados.some((c) => c.premioId === premio.id)
     if (yaCanjeado) {
       toast.warn('Ya has canjeado este premio y no puedes volver a canjearlo.')
@@ -151,7 +155,7 @@ export default function Premios() {
                 </div>
               )}
 
-              {permitirCanje && (
+              {permitirCanje && usuario?.role !== 'admin' && (
                 <motion.button
                   onClick={() => setConfirmState({ open: true, type: 'canjear', premio })}
                   whileHover={{ scale: 1.03 }}
@@ -306,25 +310,27 @@ export default function Premios() {
       <div className="flex justify-center space-x-4 mb-6">
         <button
           onClick={() => setVista('disponibles')}
-          className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'disponibles' ? 'bg-[#F40009] text-white' : 'border border-[#F40009] text-[#F40009]'
-            }`}
+          className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'disponibles' ? 'bg-[#F40009] text-white' : 'border border-[#F40009] text-[#F40009]'}`}
         >
           Premios disponibles
         </button>
 
-        <button
-          onClick={() => setVista('misCanjes')}
-          className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'misCanjes' ? 'bg-[#F40009] text-white' : 'border border-[#F40009] text-[#F40009]'
-            }`}
-        >
-          Mis canjes
-        </button>
+        {usuario?.role !== 'admin' && (
+          <button
+            onClick={() => setVista('misCanjes')}
+            className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'misCanjes'
+                ? 'bg-[#F40009] text-white'
+                : 'border border-[#F40009] text-[#F40009]'
+              }`}
+          >
+            Mis canjes
+          </button>
+        )}
 
         {usuario?.role === 'admin' && (
           <button
             onClick={() => setVista('historialGlobal')}
-            className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'historialGlobal' ? 'bg-[#F40009] text-white' : 'border border-[#F40009] text-[#F40009]'
-              }`}
+            className={`px-6 py-2 rounded-full text-sm font-semibold ${vista === 'historialGlobal' ? 'bg-[#F40009] text-white' : 'border border-[#F40009] text-[#F40009]'}`}
           >
             Historial global
           </button>
@@ -345,7 +351,7 @@ export default function Premios() {
           true
         )}
 
-      {vista === 'misCanjes' && renderMisCanjes()}
+      {vista === 'misCanjes' && usuario?.role !== 'admin' && renderMisCanjes()}
 
       {vista === 'historialGlobal' && usuario?.role === 'admin' && renderHistorialGlobal()}
 

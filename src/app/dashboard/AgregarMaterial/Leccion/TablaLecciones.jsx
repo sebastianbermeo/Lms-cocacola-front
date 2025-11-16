@@ -93,7 +93,7 @@ export default function TablaLecciones({ lecciones = [], onEdit, onDelete }) {
         onClose={() => setModalOpen(false)}
         onConfirm={() => onDelete && onDelete(leccionSeleccionada?.id)}
         title={`¿Deseas eliminar la lección "${leccionSeleccionada?.titulo}"?`}
-        message="Esta acción eliminará permanentemente esta lección."
+        message="Al eliminar esta lección, tambien se eliminará la evaluacion relacionada."
       />
 
       <DetallesLeccion

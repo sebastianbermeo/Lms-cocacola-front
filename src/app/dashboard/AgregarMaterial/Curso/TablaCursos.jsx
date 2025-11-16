@@ -76,7 +76,7 @@ export default function TablaCursos({ cursos = [], onEdit, onDelete }) {
         onClose={() => setModalOpen(false)}
         onConfirm={() => onDelete && onDelete(cursoSeleccionado?.id)}
         title={`¿Deseas eliminar el curso "${cursoSeleccionado?.titulo}"?`}
-        message="Al eliminar este curso, también se eliminarán todos los módulos y lecciones asociadas a él."
+        message="Al eliminar este curso, también se eliminarán todos los módulos, lecciones y evaluaciones asociadas a él."
       />
     </div>
   )

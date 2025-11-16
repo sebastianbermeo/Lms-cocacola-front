@@ -33,7 +33,7 @@ export default function DetallesQuiz({ open, onClose, quiz }) {
             <X size={22} />
           </button>
 
-          <div className="p-8 text-center border-b border-gray-200">
+          <div className="p-8 text-center border-b border-gray-200 bg-gray-50 rounded-t-2xl">
             <Award size={40} className="mx-auto mb-2 text-[#F40009]" />
             <h2 className="text-3xl font-bold text-gray-800 mb-1">
               Evaluación de {quiz.leccion?.titulo || 'Lección'}
